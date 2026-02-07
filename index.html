@@ -139,6 +139,24 @@ header h1 span { color: var(--green); }
   font-size: 11px; font-weight: 700; color: #000; min-width: 36px;
 }
 
+/* Cell voltage summary */
+.cell-summary {
+  display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 6px;
+  margin-bottom: 10px; padding: 8px; background: rgba(0,0,0,0.25);
+  border-radius: 8px;
+}
+.cell-summary-item { text-align: center; padding: 6px 4px; border-radius: 6px; }
+.cell-summary-item.avg { background: rgba(0,0,0,0.2); }
+.cell-summary-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text3); margin-bottom: 2px;
+}
+.cell-summary-value {
+  font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.cell-summary-item.avg .cell-summary-value { font-size: 22px; color: var(--green); }
+
 /* Cell voltages */
 .cells-container { display: flex; flex-direction: column; gap: 3px; }
 .cell-row {
@@ -458,6 +476,20 @@ function createDevicePanel(s) {
         <div style="display:flex; justify-content:space-between; margin-bottom:6px">
           <div class="card-title">Cell Voltages</div>
           <div style="font-size:11px; color:var(--text3)">&#916; <span id="cell-delta-${s}">—</span> mV</div>
+        </div>
+        <div class="cell-summary" id="cell-summary-${s}">
+          <div class="cell-summary-item">
+            <div class="cell-summary-label">Min</div>
+            <div class="cell-summary-value" id="cell-min-${s}">—</div>
+          </div>
+          <div class="cell-summary-item avg">
+            <div class="cell-summary-label">Avg Cell Voltage</div>
+            <div class="cell-summary-value" id="cell-avg-${s}">—</div>
+          </div>
+          <div class="cell-summary-item">
+            <div class="cell-summary-label">Max</div>
+            <div class="cell-summary-value" id="cell-max-${s}">—</div>
+          </div>
         </div>
         <div class="cells-container" id="cells-container-${s}">
           <div style="text-align:center; color:var(--text3); padding:16px; font-size:12px">Waiting for cell data...</div>
@@ -1085,6 +1117,20 @@ function updateSlotUI(s) {
 
   const deltaEl = el('cell-delta', s);
   if (deltaEl) deltaEl.textContent = d.deltaCell.toFixed(0);
+
+  // Cell voltage summary (avg / min / max)
+  const avgEl = el('cell-avg', s);
+  if (avgEl) avgEl.textContent = d.avgCell > 0 ? (d.avgCell / 1000).toFixed(3) + ' V' : '—';
+  const minEl = el('cell-min', s);
+  if (minEl && d.cells.length > 0) {
+    const minMv = Math.min(...d.cells.map(c => c.mV));
+    minEl.textContent = (minMv / 1000).toFixed(3) + ' V';
+  }
+  const maxEl = el('cell-max', s);
+  if (maxEl && d.cells.length > 0) {
+    const maxMv = Math.max(...d.cells.map(c => c.mV));
+    maxEl.textContent = (maxMv / 1000).toFixed(3) + ' V';
+  }
 
   // Temps
   updateTempDisplay(s);
