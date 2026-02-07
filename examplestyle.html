@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#09090b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PQ BMS">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Powerqueen BMS Monitor</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #09090b;
+      --surface: #18181b;
+      --surface2: #27272a;
+      --border: #3f3f46;
+      --text: #f4f4f5;
+      --text-dim: #a1a1aa;
+      --accent: #f59e0b;
+      --accent2: #fbbf24;
+      --accent-glow: rgba(245, 158, 11, 0.15);
+      --accent2-glow: rgba(251, 191, 36, 0.15);
+      --green: #4ade80;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --orange: #fb923c;
+      --radius: 12px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #18181b; }
+    ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+    html { font-size: 16px; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9, 9, 11, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--surface2);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-title svg { width: 28px; height: 28px; }
+
+    .header-title h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .header-dots {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-device {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-device-label {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+
+    .connection-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--surface2);
+      transition: background 0.3s;
+    }
+    .connection-dot.connected { background: var(--green); }
+    .connection-dot.connecting {
+      background: var(--yellow);
+      animation: pulse 1s infinite;
+    }
+    .connection-dot.disconnected { background: var(--red); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Main */
+    .main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px 16px calc(16px + var(--safe-bottom));
+    }
+
+    /* Connect Screen */
+    .connect-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 70dvh;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .battery-icon-large {
+      width: 80px; height: 80px;
+      margin-bottom: 24px;
+      color: var(--accent);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .connect-screen h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .connect-screen p {
+      color: var(--text-dim);
+      margin-bottom: 32px;
+      line-height: 1.5;
+      max-width: 400px;
+    }
+
+    .connect-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 999px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    .btn-primary.accent2 { background: var(--accent2); }
+    .btn-primary:hover { filter: brightness(1.1); transform: scale(1.02); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+    }
+    .btn-outline:hover { background: var(--accent-glow); }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 0.85rem;
+    }
+
+    .btn svg { width: 18px; height: 18px; }
+
+    /* Dashboard */
+    .dashboard { display: none; }
+    .dashboard.visible { display: block; }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* Combined Summary Banner */
+    .combined-banner {
+      background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(251,191,36,0.1));
+      border: 1px solid var(--surface2);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .combined-banner.visible { display: block; }
+
+    .combined-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .combined-title svg { width: 14px; height: 14px; }
+
+    .combined-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 480px) {
+      .combined-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .combined-stat {
+      text-align: center;
+    }
+
+    .combined-stat-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .combined-stat-label {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    /* Dual Battery Layout */
+    .dual-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .dual-layout { grid-template-columns: 1fr; }
+    }
+
+    .bms-panel {
+      min-width: 0;
+    }
+
+    .bms-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding: 0 2px;
+    }
+
+    .bms-panel-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .bms-color-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .bms-panel-name {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-weight: 400;
+      margin-left: 4px;
+    }
+
+    .bms-panel-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--surface2);
+      background: var(--surface);
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      padding: 0;
+    }
+    .btn-icon:hover { background: var(--surface2); color: var(--text); }
+    .btn-icon.danger:hover { background: rgba(248,113,113,0.15); color: var(--red); border-color: var(--red); }
+    .btn-icon svg { width: 14px; height: 14px; }
+
+    /* Empty panel (connect prompt) */
+    .bms-empty {
+      background: var(--surface);
+      border: 2px dashed var(--surface2);
+      border-radius: var(--radius);
+      padding: 40px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+    }
+
+    .bms-empty svg {
+      width: 40px; height: 40px;
+      color: var(--surface2);
+      margin-bottom: 12px;
+    }
+
+    .bms-empty p {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+    }
+
+    /* SOC Hero (per-panel, smaller) */
+    .soc-hero {
+      text-align: center;
+      padding: 12px 8px 16px;
+    }
+
+    .soc-ring-container {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 10px;
+    }
+
+    .soc-ring {
+      width: 100%; height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .soc-ring-bg {
+      fill: none;
+      stroke: var(--surface2);
+      stroke-width: 10;
+    }
+
+    .soc-ring-fill {
+      fill: none;
+      stroke: var(--green);
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 376.99;
+      stroke-dashoffset: 376.99;
+      transition: stroke-dashoffset 1s ease, stroke 0.5s;
+    }
+
+    .soc-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .soc-value {
+      font-size: 2.4rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .soc-unit {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .soc-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: var(--surface);
+    }
+
+    .soc-status svg { width: 14px; height: 14px; }
+
+    /* Quick Stats Row */
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      margin-bottom: 2px;
+    }
+
+    .stat-value {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .stat-sub {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      margin-top: 1px;
+    }
+
+    /* Section Card */
+    .section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .section-header:hover { background: rgba(255,255,255,0.03); }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .section-title svg { width: 16px; height: 16px; color: var(--accent); }
+
+    .section-chevron {
+      width: 16px; height: 16px;
+      color: var(--text-dim);
+      transition: transform 0.3s;
+    }
+
+    .section.open .section-chevron { transform: rotate(180deg); }
+
+    .section-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .section.open .section-body { max-height: 800px; }
+
+    .section-content { padding: 0 14px 14px; }
+
+    /* Cell Voltage Grid */
+    .cell-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .cell-item {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+
+    .cell-label {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    .cell-voltage {
+      font-size: 0.88rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cell-bar {
+      width: 100%;
+      height: 3px;
+      background: var(--surface2);
+      border-radius: 2px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+
+    .cell-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.5s, background 0.5s;
+    }
+
+    /* Info Row */
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .info-value {
+      font-size: 0.82rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Status badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .badge-green { background: rgba(74,222,128,0.15); color: var(--green); }
+    .badge-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .badge-red { background: rgba(248,113,113,0.15); color: var(--red); }
+    .badge-blue { background: rgba(245,158,11,0.15); color: var(--accent); }
+
+    /* Timestamp */
+    .last-update {
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      padding: 8px 0 16px;
+    }
+
+    /* Error Toast */
+    .toast {
+      position: fixed;
+      bottom: calc(20px + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--red);
+      color: white;
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      font-weight: 600;
+      z-index: 200;
+      transition: transform 0.3s;
+      max-width: 90vw;
+      text-align: center;
+    }
+    .toast.visible { transform: translateX(-50%) translateY(0); }
+
+    /* Loading spinner */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(0,0,0,0.2);
+      border-top-color: var(--bg);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* History chart (full width below panels) */
+    .history-section {
+      margin-top: 12px;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 160px;
+      margin-top: 8px;
+    }
+
+    .chart-container canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chart-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    .chart-legend-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+
+    /* Smooth appearance */
+    .fade-in {
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 360px) {
+      .soc-ring-container { width: 120px; height: 120px; }
+      .soc-value { font-size: 2rem; }
+      .quick-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="4" width="12" height="18" rx="2"/>
+        <line x1="10" y1="1" x2="14" y2="1"/>
+        <line x1="10" y1="7" x2="14" y2="7"/>
+      </svg>
+      <h1>PQ BMS</h1>
+    </div>
+    <div class="header-dots">
+      <div class="header-device" id="headerDev0">
+        <span class="header-device-label" id="headerLabel0">BMS 1</span>
+        <div class="connection-dot" id="headerDot0"></div>
+      </div>
+      <div class="header-device" id="headerDev1">
+        <span class="header-device-label" id="headerLabel1">BMS 2</span>
+        <div class="connection-dot" id="headerDot1"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Connect Screen (shown when no devices connected) -->
+  <div id="connectScreen" class="connect-screen">
+    <svg class="battery-icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="6" width="18" height="12" rx="2"/>
+      <line x1="22" y1="10" x2="22" y2="14"/>
+      <line x1="6" y1="10" x2="6" y2="14"/>
+      <line x1="10" y1="10" x2="10" y2="14"/>
+      <line x1="14" y1="10" x2="14" y2="14"/>
+    </svg>
+    <h2>Powerqueen BMS</h2>
+    <p>Connect up to 2 LiFePO4 batteries via Bluetooth to monitor real-time status, cell voltages, and health data.</p>
+    <div class="connect-buttons">
+      <button id="btnConnectFirst" class="btn btn-primary" onclick="addBmsDevice(0)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6.5 6.5l11 11L12 23V1l5.5 5.5-11 11"/>
+        </svg>
+        Connect Battery 1
+      </button>
+    </div>
+    <p id="bleWarning" style="display:none; margin-top:16px; color:var(--yellow); font-size:0.85rem;">
+      Web Bluetooth is not supported in this browser. Please use Chrome, Edge, or Opera on desktop or Android.
+    </p>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="dashboard main">
+
+    <!-- Toolbar -->
+    <div class="toolbar fade-in">
+      <button class="btn btn-outline btn-sm" onclick="refreshAll()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px">
+          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+        </svg>
+        Refresh All
+      </button>
+      <button id="btnAutoRefresh" class="btn btn-outline btn-sm" onclick="toggleAutoRefresh()">
+        Auto: Off
+      </button>
+      <button id="btnAddSecond" class="btn btn-outline btn-sm" onclick="addBmsDevice(1)" style="margin-left:auto;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Battery 2
+      </button>
+    </div>
+
+    <!-- Combined Summary (visible when 2 connected) -->
+    <div id="combinedBanner" class="combined-banner fade-in">
+      <div class="combined-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Combined System
+      </div>
+      <div class="combined-stats">
+        <div class="combined-stat">
+          <div id="combVoltage" class="combined-stat-value">--</div>
+          <div class="combined-stat-label">Total Voltage</div>
+        </div>
+        <div class="combined-stat">
+          <div id="combCapacity" class="combined-stat-value">--</div>
+          <div class="combined-stat-label">Total Capacity</div>
+        </div>
+        <div class="combined-stat">
+          <div id="combPower" class="combined-stat-value">--</div>
+          <div class="combined-stat-label">Total Power</div>
+        </div>
+        <div class="combined-stat">
+          <div id="combEnergy" class="combined-stat-value">--</div>
+          <div class="combined-stat-label">Stored Energy</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dual Layout -->
+    <div class="dual-layout" id="dualLayout">
+      <!-- Panel 0 will be generated by JS -->
+      <div id="panel0" class="bms-panel"></div>
+      <!-- Panel 1 will be generated by JS -->
+      <div id="panel1" class="bms-panel"></div>
+    </div>
+
+    <!-- Shared History Section -->
+    <div class="history-section fade-in">
+      <div class="section" id="sectionHistory">
+        <div class="section-header" onclick="toggleSection('sectionHistory')">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            Live History
+          </div>
+          <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="section-body"><div class="section-content">
+          <div class="chart-container"><canvas id="historyChart"></canvas></div>
+          <div class="chart-legend" id="chartLegend"></div>
+        </div></div>
+      </div>
+    </div>
+
+    <div id="lastUpdate" class="last-update"></div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // ===== BLE Protocol Constants =====
+    const SERVICE_UUID = 0xFFE0;
+    const CHAR_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
+    const CMD_GET_VERSION = new Uint8Array([0x00, 0x00, 0x04, 0x01, 0x16, 0x55, 0xAA, 0x1A]);
+    const CMD_GET_BATTERY = new Uint8Array([0x00, 0x00, 0x04, 0x01, 0x13, 0x55, 0xAA, 0x17]);
+
+    const MAX_HISTORY = 60;
+    const COLORS = ['#f59e0b', '#fbbf24'];       // accent per device
+    const COLOR_NAMES = ['var(--accent)', 'var(--accent2)'];
+    const LABELS = ['Battery 1', 'Battery 2'];
+
+    // ===== BMS Device Class =====
+    class BmsConnection {
+      constructor(index) {
+        this.index = index;
+        this.device = null;
+        this.server = null;
+        this.characteristic = null;
+        this.responseBuffer = new Uint8Array(0);
+        this.currentResolve = null;
+        this.connected = false;
+        this.data = null;       // latest parsed battery data
+        this.version = null;    // parsed version info
+        this.history = { timestamps: [], soc: [], voltage: [] };
+      }
+
+      async connect() {
+        this.device = await navigator.bluetooth.requestDevice({
+          filters: [{ services: [SERVICE_UUID] }],
+          optionalServices: [SERVICE_UUID]
+        });
+
+        this.device.addEventListener('gattserverdisconnected', () => this.onDisconnected());
+
+        this.server = await this.device.gatt.connect();
+        const service = await this.server.getPrimaryService(SERVICE_UUID);
+        this.characteristic = await service.getCharacteristic(CHAR_UUID);
+
+        await this.characteristic.startNotifications();
+        this.characteristic.addEventListener('characteristicvaluechanged', (e) => this.onNotification(e));
+
+        this.connected = true;
+      }
+
+      onNotification(event) {
+        const chunk = new Uint8Array(event.target.value.buffer);
+        const combined = new Uint8Array(this.responseBuffer.length + chunk.length);
+        combined.set(this.responseBuffer);
+        combined.set(chunk, this.responseBuffer.length);
+        this.responseBuffer = combined;
+
+        if (this.responseBuffer.length >= 3) {
+          const expectedLen = this.responseBuffer[2] + 4;
+          if (this.responseBuffer.length >= expectedLen) {
+            const packet = this.responseBuffer.slice(0, expectedLen);
+            this.responseBuffer = this.responseBuffer.slice(expectedLen);
+            if (this.currentResolve) {
+              const resolve = this.currentResolve;
+              this.currentResolve = null;
+              resolve(packet);
+            }
+          }
+        }
+      }
+
+      sendCommand(cmd, timeout = 5000) {
+        return new Promise(async (resolve, reject) => {
+          this.responseBuffer = new Uint8Array(0);
+
+          const timer = setTimeout(() => {
+            this.currentResolve = null;
+            reject(new Error('Response timeout'));
+          }, timeout);
+
+          this.currentResolve = (data) => {
+            clearTimeout(timer);
+            resolve(data);
+          };
+
+          try {
+            await this.characteristic.writeValueWithoutResponse(cmd);
+          } catch (err) {
+            clearTimeout(timer);
+            this.currentResolve = null;
+            reject(err);
+          }
+        });
+      }
+
+      async fetchAll() {
+        // Version
+        const versionData = await this.sendCommand(CMD_GET_VERSION);
+        if (crcCheck(versionData)) {
+          this.version = parseVersionData(versionData);
+        }
+        await new Promise(r => setTimeout(r, 500));
+
+        // Battery info
+        const battData = await this.sendCommand(CMD_GET_BATTERY);
+        if (crcCheck(battData)) {
+          this.data = parseBatteryData(battData);
+          this.pushHistory();
+        } else {
+          throw new Error('CRC checksum error');
+        }
+      }
+
+      async refresh() {
+        if (!this.characteristic || !this.connected) return;
+        const battData = await this.sendCommand(CMD_GET_BATTERY);
+        if (crcCheck(battData)) {
+          this.data = parseBatteryData(battData);
+          this.pushHistory();
+        }
+      }
+
+      pushHistory() {
+        if (!this.data) return;
+        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        this.history.timestamps.push(now);
+        this.history.soc.push(this.data.soc);
+        this.history.voltage.push(this.data.voltage);
+        if (this.history.timestamps.length > MAX_HISTORY) {
+          this.history.timestamps.shift();
+          this.history.soc.shift();
+          this.history.voltage.shift();
+        }
+      }
+
+      disconnect() {
+        if (this.device && this.device.gatt.connected) {
+          this.device.gatt.disconnect();
+        }
+      }
+
+      onDisconnected() {
+        this.connected = false;
+        this.characteristic = null;
+        this.server = null;
+        showToast(`${this.device?.name || LABELS[this.index]} disconnected`);
+        updateUI();
+      }
+
+      get name() {
+        return this.device?.name || LABELS[this.index];
+      }
+    }
+
+    // ===== Global State =====
+    const bms = [new BmsConnection(0), new BmsConnection(1)];
+    let autoRefreshInterval = null;
+
+    // ===== Init =====
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!navigator.bluetooth) {
+        document.getElementById('bleWarning').style.display = 'block';
+        document.getElementById('btnConnectFirst').disabled = true;
+      }
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      }
+      renderEmptyPanels();
+    });
+
+    // ===== Connect =====
+    async function addBmsDevice(idx) {
+      const btn = idx === 0 ? document.getElementById('btnConnectFirst') : document.getElementById('btnAddSecond');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> Connecting...';
+      }
+      setHeaderDot(idx, 'connecting');
+
+      try {
+        await bms[idx].connect();
+        setHeaderDot(idx, 'connected');
+
+        // Show dashboard
+        document.getElementById('connectScreen').style.display = 'none';
+        document.getElementById('dashboard').classList.add('visible');
+
+        // Update panels
+        buildPanelHtml(idx);
+
+        await bms[idx].fetchAll();
+        updatePanel(idx);
+        updateCombined();
+        drawChart();
+        updateLastUpdate();
+
+        // If both connected, hide "add second" button
+        if (bms[0].connected && bms[1].connected) {
+          document.getElementById('btnAddSecond').classList.add('hidden');
+        }
+
+      } catch (err) {
+        console.error('Connection failed:', err);
+        showToast(`BMS ${idx + 1}: ${err.message}`);
+        setHeaderDot(idx, '');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = idx === 0
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11L12 23V1l5.5 5.5-11 11"/></svg> Connect Battery 1`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Battery 2`;
+        }
+        // If neither connected, show connect screen
+        if (!bms[0].connected && !bms[1].connected) {
+          document.getElementById('connectScreen').style.display = '';
+          document.getElementById('dashboard').classList.remove('visible');
+        }
+      }
+    }
+
+    function disconnectDevice(idx) {
+      bms[idx].disconnect();
+      setHeaderDot(idx, '');
+      renderEmptyPanel(idx);
+
+      if (!bms[0].connected && !bms[1].connected) {
+        if (autoRefreshInterval) toggleAutoRefresh();
+        document.getElementById('connectScreen').style.display = '';
+        document.getElementById('dashboard').classList.remove('visible');
+        const btn = document.getElementById('btnConnectFirst');
+        btn.disabled = false;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11L12 23V1l5.5 5.5-11 11"/></svg> Connect Battery 1`;
+      }
+
+      // Show "add second" if one is still connected
+      const btn2 = document.getElementById('btnAddSecond');
+      if (bms[0].connected || bms[1].connected) {
+        btn2.classList.remove('hidden');
+        btn2.disabled = false;
+        btn2.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Battery ${idx === 0 ? 1 : 2}`;
+        // Reassign the onclick to the disconnected slot
+        btn2.onclick = () => addBmsDevice(idx);
+      }
+
+      updateCombined();
+      drawChart();
+    }
+
+    function updateUI() {
+      for (let i = 0; i < 2; i++) {
+        setHeaderDot(i, bms[i].connected ? 'connected' : '');
+        if (!bms[i].connected) renderEmptyPanel(i);
+        else updatePanel(i);
+      }
+      updateCombined();
+      drawChart();
+
+      if (!bms[0].connected && !bms[1].connected) {
+        if (autoRefreshInterval) toggleAutoRefresh();
+        document.getElementById('connectScreen').style.display = '';
+        document.getElementById('dashboard').classList.remove('visible');
+      }
+
+      const btn2 = document.getElementById('btnAddSecond');
+      const disconnectedIdx = !bms[0].connected ? 0 : (!bms[1].connected ? 1 : -1);
+      if (disconnectedIdx >= 0 && (bms[0].connected || bms[1].connected)) {
+        btn2.classList.remove('hidden');
+        btn2.disabled = false;
+        btn2.onclick = () => addBmsDevice(disconnectedIdx);
+        btn2.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Battery ${disconnectedIdx + 1}`;
+      } else {
+        btn2.classList.add('hidden');
+      }
+    }
+
+    // ===== Refresh =====
+    async function refreshAll() {
+      const promises = [];
+      for (let i = 0; i < 2; i++) {
+        if (bms[i].connected) {
+          promises.push(
+            bms[i].refresh()
+              .then(() => updatePanel(i))
+              .catch(err => showToast(`BMS ${i + 1} refresh failed`))
+          );
+        }
+      }
+      if (promises.length === 0) return;
+      await Promise.all(promises);
+      updateCombined();
+      drawChart();
+      updateLastUpdate();
+    }
+
+    function toggleAutoRefresh() {
+      const btn = document.getElementById('btnAutoRefresh');
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+        btn.textContent = 'Auto: Off';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+      } else {
+        autoRefreshInterval = setInterval(refreshAll, 5000);
+        btn.textContent = 'Auto: 5s';
+        btn.style.borderColor = 'var(--green)';
+        btn.style.color = 'var(--green)';
+      }
+    }
+
+    function updateLastUpdate() {
+      document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+    }
+
+    // ===== Header Dots =====
+    function setHeaderDot(idx, state) {
+      const dot = document.getElementById('headerDot' + idx);
+      const label = document.getElementById('headerLabel' + idx);
+      dot.className = 'connection-dot';
+      if (state === 'connected') {
+        dot.classList.add('connected');
+        label.textContent = bms[idx].name;
+      } else if (state === 'connecting') {
+        dot.classList.add('connecting');
+        label.textContent = 'Connecting...';
+      } else {
+        label.textContent = LABELS[idx];
+      }
+    }
+
+    // ===== Panel HTML Generation =====
+    const SVG = {
+      cells: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="5" height="12" rx="1"/><rect x="10" y="6" width="5" height="12" rx="1"/><rect x="19" y="6" width="5" height="12" rx="1"/></svg>',
+      temp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/></svg>',
+      shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+      gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>',
+      chevron: '<svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>',
+      refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>',
+      x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+      bt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11L12 23V1l5.5 5.5-11 11"/></svg>',
+      plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+    };
+
+    function buildPanelHtml(idx) {
+      const P = `p${idx}`;
+      const color = COLORS[idx];
+      const circumference = 2 * Math.PI * 60; // r=60 for 140px ring
+      document.getElementById('panel' + idx).innerHTML = `
+        <div class="bms-panel-header">
+          <div class="bms-panel-label">
+            <div class="bms-color-dot" style="background:${color}"></div>
+            ${LABELS[idx]}
+            <span class="bms-panel-name" id="${P}_name"></span>
+          </div>
+          <div class="bms-panel-actions">
+            <button class="btn-icon" onclick="refreshDevice(${idx})" title="Refresh">${SVG.refresh}</button>
+            <button class="btn-icon danger" onclick="disconnectDevice(${idx})" title="Disconnect">${SVG.x}</button>
+          </div>
+        </div>
+
+        <!-- SOC -->
+        <div class="soc-hero">
+          <div class="soc-ring-container">
+            <svg class="soc-ring" viewBox="0 0 140 140">
+              <circle class="soc-ring-bg" cx="70" cy="70" r="60"/>
+              <circle id="${P}_socRing" class="soc-ring-fill" cx="70" cy="70" r="60" style="stroke-dasharray:${circumference};stroke-dashoffset:${circumference}"/>
+            </svg>
+            <div class="soc-text">
+              <span id="${P}_socVal" class="soc-value">--</span>
+              <span class="soc-unit">%</span>
+            </div>
+          </div>
+          <div id="${P}_socStatus" class="soc-status">Waiting...</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="quick-stats">
+          <div class="stat-card"><div class="stat-label">Voltage</div><div id="${P}_volt" class="stat-value">--</div><div class="stat-sub">V</div></div>
+          <div class="stat-card"><div class="stat-label">Current</div><div id="${P}_curr" class="stat-value">--</div><div class="stat-sub">A</div></div>
+          <div class="stat-card"><div class="stat-label">Power</div><div id="${P}_pow" class="stat-value">--</div><div class="stat-sub">W</div></div>
+        </div>
+        <div class="quick-stats" style="grid-template-columns: repeat(2,1fr);">
+          <div class="stat-card"><div class="stat-label">Remaining</div><div id="${P}_remAh" class="stat-value">--</div><div class="stat-sub">Ah</div></div>
+          <div class="stat-card"><div class="stat-label">Capacity</div><div id="${P}_facAh" class="stat-value">--</div><div class="stat-sub">Ah</div></div>
+        </div>
+
+        <!-- Cells -->
+        <div class="section open" id="${P}_secCells">
+          <div class="section-header" onclick="toggleSection('${P}_secCells')">
+            <div class="section-title">${SVG.cells} Cells</div>
+            ${SVG.chevron}
+          </div>
+          <div class="section-body"><div class="section-content">
+            <div id="${P}_cellGrid" class="cell-grid"></div>
+            <div style="margin-top:8px;">
+              <div class="info-row"><span class="info-label">Delta</span><span id="${P}_delta" class="info-value">--</span></div>
+              <div class="info-row"><span class="info-label">Balance</span><span id="${P}_balance" class="info-value">--</span></div>
+            </div>
+          </div></div>
+        </div>
+
+        <!-- Temps -->
+        <div class="section open" id="${P}_secTemp">
+          <div class="section-header" onclick="toggleSection('${P}_secTemp')">
+            <div class="section-title">${SVG.temp} Temperature</div>
+            ${SVG.chevron}
+          </div>
+          <div class="section-body"><div class="section-content">
+            <div class="info-row"><span class="info-label">Cell</span><span id="${P}_cellT" class="info-value">--</span></div>
+            <div class="info-row"><span class="info-label">MOSFET</span><span id="${P}_mosT" class="info-value">--</span></div>
+            <div class="info-row"><span class="info-label">Heating</span><span id="${P}_heat" class="info-value">--</span></div>
+          </div></div>
+        </div>
+
+        <!-- Health -->
+        <div class="section" id="${P}_secHealth">
+          <div class="section-header" onclick="toggleSection('${P}_secHealth')">
+            <div class="section-title">${SVG.shield} Health</div>
+            ${SVG.chevron}
+          </div>
+          <div class="section-body"><div class="section-content">
+            <div class="info-row"><span class="info-label">SOH</span><span id="${P}_soh" class="info-value">--</span></div>
+            <div class="info-row"><span class="info-label">Protection</span><span id="${P}_protect" class="info-value">--</span></div>
+            <div class="info-row"><span class="info-label">Cell Status</span><span id="${P}_cellSt" class="info-value">--</span></div>
+            <div class="info-row"><span class="info-label">Disch. Switch</span><span id="${P}_dSw" class="info-value">--</span></div>
+            <div class="info-row"><span class="info-label">Cycles</span><span id="${P}_cycles" class="info-value">--</span></div>
+            <div class="info-row"><span class="info-label">Total Disch.</span><span id="${P}_dAh" class="info-value">--</span></div>
+          </div></div>
+        </div>
+
+        <!-- Device -->
+        <div class="section" id="${P}_secDev">
+          <div class="section-header" onclick="toggleSection('${P}_secDev')">
+            <div class="section-title">${SVG.gear} Device</div>
+            ${SVG.chevron}
+          </div>
+          <div class="section-body"><div class="section-content">
+            <div class="info-row"><span class="info-label">Name</span><span id="${P}_devName" class="info-value">--</span></div>
+            <div class="info-row"><span class="info-label">Firmware</span><span id="${P}_fw" class="info-value">--</span></div>
+            <div class="info-row"><span class="info-label">Hardware</span><span id="${P}_hw" class="info-value">--</span></div>
+            <div class="info-row"><span class="info-label">Mfg Date</span><span id="${P}_mfg" class="info-value">--</span></div>
+          </div></div>
+        </div>
+      `;
+    }
+
+    function renderEmptyPanel(idx) {
+      const color = COLORS[idx];
+      document.getElementById('panel' + idx).innerHTML = `
+        <div class="bms-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="18" height="12" rx="2"/>
+            <line x1="22" y1="10" x2="22" y2="14"/>
+          </svg>
+          <p>${LABELS[idx]} — not connected</p>
+          <button class="btn btn-primary btn-sm ${idx === 1 ? 'accent2' : ''}" onclick="addBmsDevice(${idx})">
+            ${SVG.bt}
+            Connect
+          </button>
+        </div>
+      `;
+    }
+
+    function renderEmptyPanels() {
+      renderEmptyPanel(0);
+      renderEmptyPanel(1);
+    }
+
+    // ===== Update Panel UI =====
+    function updatePanel(idx) {
+      const d = bms[idx].data;
+      const v = bms[idx].version;
+      if (!d) return;
+      const P = `p${idx}`;
+
+      // Name
+      const nameEl = document.getElementById(P + '_name');
+      if (nameEl) nameEl.textContent = bms[idx].name;
+
+      // SOC ring
+      const circumference = 2 * Math.PI * 60;
+      const offset = circumference * (1 - d.soc / 100);
+      const ring = document.getElementById(P + '_socRing');
+      ring.style.strokeDashoffset = offset;
+      ring.style.stroke = d.soc > 20 ? (d.soc > 50 ? 'var(--green)' : 'var(--yellow)') : 'var(--red)';
+
+      document.getElementById(P + '_socVal').textContent = d.soc;
+
+      // Status
+      const statusEl = document.getElementById(P + '_socStatus');
+      statusEl.innerHTML = d.statusIcon + ' ' + d.status;
+      statusEl.style.color = d.statusColor;
+
+      // Stats
+      document.getElementById(P + '_volt').textContent = d.voltage.toFixed(2);
+      document.getElementById(P + '_curr').textContent = d.current.toFixed(2);
+      document.getElementById(P + '_pow').textContent = Math.abs(d.power).toFixed(1);
+      document.getElementById(P + '_remAh').textContent = d.remainAh.toFixed(1);
+      document.getElementById(P + '_facAh').textContent = d.factoryAh.toFixed(1);
+
+      // Cells
+      const cellGrid = document.getElementById(P + '_cellGrid');
+      const cellKeys = Object.keys(d.cells).sort((a, b) => a - b);
+      const voltages = cellKeys.map(k => d.cells[k]);
+      const minV = Math.min(...voltages);
+      const maxV = Math.max(...voltages);
+
+      cellGrid.innerHTML = cellKeys.map(k => {
+        const cv = d.cells[k];
+        const pct = Math.max(0, Math.min(100, ((cv - 2.5) / (3.65 - 2.5)) * 100));
+        let barColor = 'var(--green)';
+        if (cv < 3.0) barColor = 'var(--red)';
+        else if (cv < 3.2) barColor = 'var(--yellow)';
+        return `<div class="cell-item"><div style="flex:1">
+          <div style="display:flex;justify-content:space-between">
+            <span class="cell-label">Cell ${k}</span>
+            <span class="cell-voltage" style="color:${barColor}">${cv.toFixed(3)}V</span>
+          </div>
+          <div class="cell-bar"><div class="cell-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+        </div></div>`;
+      }).join('');
+
+      const delta = maxV - minV;
+      document.getElementById(P + '_delta').innerHTML =
+        `${(delta * 1000).toFixed(0)} mV <span class="badge ${delta < 0.02 ? 'badge-green' : delta < 0.05 ? 'badge-yellow' : 'badge-red'}">${delta < 0.02 ? 'Good' : delta < 0.05 ? 'Fair' : 'High'}</span>`;
+
+      document.getElementById(P + '_balance').innerHTML = d.equilibrium > 0
+        ? '<span class="badge badge-blue">Balancing</span>'
+        : '<span class="badge badge-green">Balanced</span>';
+
+      // Temps
+      document.getElementById(P + '_cellT').textContent = d.cellTemp + '\u00B0C';
+      document.getElementById(P + '_mosT').textContent = d.mosTemp + '\u00B0C';
+      document.getElementById(P + '_heat').innerHTML = d.heatActive
+        ? '<span class="badge badge-yellow">Active</span>'
+        : '<span class="badge badge-green">Off</span>';
+
+      // Health
+      document.getElementById(P + '_soh').textContent = d.soh + '%';
+      document.getElementById(P + '_protect').innerHTML = `<span class="badge ${d.protectBadge}">${d.protectText}</span>`;
+      document.getElementById(P + '_cellSt').innerHTML = `<span class="badge ${d.cellStatusBadge}">${d.cellStatusText}</span>`;
+      document.getElementById(P + '_dSw').innerHTML = d.dischargeSwitchOn
+        ? '<span class="badge badge-green">On</span>'
+        : '<span class="badge badge-red">Off</span>';
+      document.getElementById(P + '_cycles').textContent = d.dischargeCount.toLocaleString();
+      document.getElementById(P + '_dAh').textContent = d.dischargeAhCount.toLocaleString() + ' Ah';
+
+      // Device
+      document.getElementById(P + '_devName').textContent = bms[idx].name;
+      if (v) {
+        document.getElementById(P + '_fw').textContent = v.firmware;
+        document.getElementById(P + '_hw').textContent = v.hardware || '--';
+        document.getElementById(P + '_mfg').textContent = v.mfgDate;
+      }
+    }
+
+    // ===== Combined Stats =====
+    function updateCombined() {
+      const both = bms[0].connected && bms[0].data && bms[1].connected && bms[1].data;
+      const banner = document.getElementById('combinedBanner');
+      banner.classList.toggle('visible', both);
+      if (!both) return;
+
+      const d0 = bms[0].data, d1 = bms[1].data;
+
+      // Total voltage (assumes series connection, but show sum regardless)
+      const totalV = d0.voltage + d1.voltage;
+      document.getElementById('combVoltage').textContent = totalV.toFixed(2) + ' V';
+
+      // Total capacity (parallel = sum Ah)
+      const totalAh = d0.remainAh + d1.remainAh;
+      const totalFac = d0.factoryAh + d1.factoryAh;
+      document.getElementById('combCapacity').textContent = totalAh.toFixed(1) + ' / ' + totalFac.toFixed(0) + ' Ah';
+
+      // Total power
+      const totalP = Math.abs(d0.power) + Math.abs(d1.power);
+      document.getElementById('combPower').textContent = totalP.toFixed(1) + ' W';
+
+      // Stored energy (Wh)
+      const wh0 = d0.voltage * d0.remainAh;
+      const wh1 = d1.voltage * d1.remainAh;
+      document.getElementById('combEnergy').textContent = (wh0 + wh1).toFixed(0) + ' Wh';
+    }
+
+    // ===== Refresh Single Device =====
+    async function refreshDevice(idx) {
+      if (!bms[idx].connected) return;
+      try {
+        await bms[idx].refresh();
+        updatePanel(idx);
+        updateCombined();
+        drawChart();
+        updateLastUpdate();
+      } catch (err) {
+        showToast(`BMS ${idx + 1}: ${err.message}`);
+      }
+    }
+
+    // ===== Parsers (pure functions) =====
+    function readUint16Rev(data, offset) {
+      return (data[offset + 1] << 8) | data[offset];
+    }
+    function readInt16Rev(data, offset) {
+      const val = readUint16Rev(data, offset);
+      return val > 0x7FFF ? val - 0x10000 : val;
+    }
+    function readUint32Rev(data, offset) {
+      return ((data[offset + 3] << 24) | (data[offset + 2] << 16) | (data[offset + 1] << 8) | data[offset]) >>> 0;
+    }
+    function readInt32Rev(data, offset) {
+      const val = readUint32Rev(data, offset);
+      return val > 0x7FFFFFFF ? val - 0x100000000 : val;
+    }
+    function crcCheck(data) {
+      let sum = 0;
+      for (let i = 0; i < data.length - 1; i++) sum += data[i];
+      return (sum & 0xFF) === data[data.length - 1];
+    }
+
+    function parseVersionData(data) {
+      const s = 8;
+      const major = readUint16Rev(data, s);
+      const minor = readUint16Rev(data, s + 2);
+      const patch = readUint16Rev(data, s + 4);
+      const year = readUint16Rev(data, s + 6);
+      const month = data[s + 8];
+      const day = data[s + 9];
+      let hw = '';
+      for (let i = s + 10; i < data.length - 1; i += 2) {
+        if (data[i] >= 32 && data[i] <= 126) hw += String.fromCharCode(data[i]);
+      }
+      return {
+        firmware: `${major}.${minor}.${patch}`,
+        mfgDate: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+        hardware: hw
+      };
+    }
+
+    function parseBatteryData(data) {
+      const voltage_mV = readUint32Rev(data, 12);
+      const voltage = voltage_mV / 1000;
+
+      const cells = {};
+      for (let i = 0; i < 16; i++) {
+        const cv = readUint16Rev(data, 16 + i * 2);
+        if (cv > 0) cells[i + 1] = cv / 1000;
+      }
+
+      const current_mA = readInt32Rev(data, 48);
+      const current = Math.round(current_mA / 10) / 100;
+      const power = Math.round((voltage_mV * current_mA) / 10000) / 100;
+
+      const cellTemp = readInt16Rev(data, 52);
+      const mosTemp = readInt16Rev(data, 54);
+
+      const remainAh = Math.round(readUint16Rev(data, 62) / 100 * 100) / 100;
+      const factoryAh = Math.round(readUint16Rev(data, 64) / 100 * 100) / 100;
+
+      const heatHex = Array.from(data.slice(68, 72)).reverse().map(b => b.toString(16).padStart(2, '0')).join('');
+      const protectHex = Array.from(data.slice(76, 80)).reverse().map(b => b.toString(16).padStart(2, '0')).join('');
+      const failureState = Array.from(data.slice(80, 84)).reverse();
+      const equilibrium = readUint32Rev(data, 84);
+      const dischargeSwitchOn = parseInt(heatHex[6], 16) < 8;
+      const heatActive = parseInt(heatHex[7], 16) === 2;
+
+      const batteryState = readUint16Rev(data, 88);
+      const soc = readUint16Rev(data, 90);
+      const soh = readUint32Rev(data, 92);
+      const dischargeCount = readUint32Rev(data, 96);
+      const dischargeAhCount = readUint32Rev(data, 100);
+
+      let status, statusColor, statusIcon;
+      if (soc >= 100 || batteryState === 4) {
+        status = 'Full';
+        statusColor = 'var(--green)';
+        statusIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+      } else if (current > 0) {
+        status = 'Charging';
+        statusColor = 'var(--accent)';
+        statusIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>';
+      } else if (current < 0) {
+        status = 'Discharging';
+        statusColor = 'var(--orange)';
+        statusIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 12 5 12 9 3 15 21 19 12 23 12"/></svg>';
+      } else {
+        status = 'Standby';
+        statusColor = 'var(--text-dim)';
+        statusIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>';
+      }
+
+      let cellStatusText = 'OK', cellStatusBadge = 'badge-green';
+      if (failureState[0] > 0 || failureState[1] > 0) {
+        cellStatusText = 'Fault'; cellStatusBadge = 'badge-red';
+      }
+
+      let protectText = 'Normal', protectBadge = 'badge-green';
+      if (protectHex !== '00000000') {
+        protectText = '0x' + protectHex; protectBadge = 'badge-yellow';
+      }
+
+      return {
+        voltage, current, power, cells, cellTemp, mosTemp,
+        remainAh, factoryAh, heatActive, dischargeSwitchOn,
+        equilibrium, soc, soh, dischargeCount, dischargeAhCount,
+        status, statusColor, statusIcon,
+        cellStatusText, cellStatusBadge, protectText, protectBadge
+      };
+    }
+
+    // ===== Chart =====
+    function drawChart() {
+      const canvas = document.getElementById('historyChart');
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      const W = rect.width;
+      const H = rect.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const padL = 8, padR = 8, padT = 20, padB = 8;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+
+      // Build legend
+      const legendEl = document.getElementById('chartLegend');
+      let legendHtml = '';
+
+      // Draw series for each connected device
+      let labelX = padL;
+      for (let i = 0; i < 2; i++) {
+        const h = bms[i].history;
+        if (h.soc.length < 2) continue;
+
+        const color = COLORS[i];
+        const dashed = false;
+
+        // SOC line (solid)
+        drawLine(ctx, h.soc, 0, 100, padL, padT, plotW, plotH, color, 2, false);
+        // Voltage line (dashed)
+        const vMin = Math.min(...h.voltage) - 0.5;
+        const vMax = Math.max(...h.voltage) + 0.5;
+        drawLine(ctx, h.voltage, vMin, vMax, padL, padT, plotW, plotH, color, 1.5, true);
+
+        // Labels
+        const lastSoc = h.soc[h.soc.length - 1];
+        const lastV = h.voltage[h.voltage.length - 1];
+        ctx.fillStyle = color;
+        ctx.font = 'bold 11px -apple-system, sans-serif';
+        ctx.fillText(`#${i + 1} ${lastSoc}% / ${lastV.toFixed(1)}V`, labelX, 14);
+        labelX += ctx.measureText(`#${i + 1} ${lastSoc}% / ${lastV.toFixed(1)}V`).width + 20;
+
+        legendHtml += `<div class="chart-legend-item"><div class="chart-legend-dot" style="background:${color}"></div>BMS ${i + 1} SOC (solid) / V (dashed)</div>`;
+      }
+
+      legendEl.innerHTML = legendHtml;
+    }
+
+    function drawLine(ctx, data, min, max, padL, padT, plotW, plotH, color, lineWidth, dashed) {
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lineWidth;
+      ctx.lineJoin = 'round';
+      if (dashed) ctx.setLineDash([6, 3]);
+      else ctx.setLineDash([]);
+
+      data.forEach((val, i) => {
+        const x = padL + (i / (data.length - 1)) * plotW;
+        const y = padT + plotH - ((val - min) / (max - min)) * plotH;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // ===== UI Helpers =====
+    function toggleSection(id) {
+      document.getElementById(id).classList.toggle('open');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('visible');
+      setTimeout(() => t.classList.remove('visible'), 3500);
+    }
+
+    window.addEventListener('resize', drawChart);
+  </script>
+</body>
+</html>
