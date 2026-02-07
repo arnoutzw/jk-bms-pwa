@@ -16,8 +16,8 @@
   --red: #ef4444; --red-bg: rgba(239,68,68,0.1);
   --yellow: #eab308; --yellow-bg: rgba(234,179,8,0.1);
   --blue: #3b82f6; --blue-bg: rgba(59,130,246,0.1);
-  --orange: #f97316;
-  --radius: 12px; --gap: 12px;
+  --orange: #f97316; --orange-bg: rgba(249,115,22,0.1);
+  --radius: 12px; --gap: 10px;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
@@ -26,23 +26,15 @@ body {
   min-height: 100vh; min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
 }
-.container { max-width: 600px; margin: 0 auto; padding: 16px; padding-bottom: 80px; }
+.container { max-width: 1200px; margin: 0 auto; padding: 12px; padding-bottom: 80px; }
 
 /* Header */
 header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 0; margin-bottom: 12px; border-bottom: 1px solid var(--surface2);
+  padding: 10px 0; margin-bottom: 12px; border-bottom: 1px solid var(--surface2);
 }
 header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
 header h1 span { color: var(--green); }
-.status-dot {
-  width: 10px; height: 10px; border-radius: 50%;
-  background: var(--text3); display: inline-block; margin-right: 8px;
-  transition: background 0.3s;
-}
-.status-dot.connected { background: var(--green); box-shadow: 0 0 8px var(--green); }
-.status-dot.connecting { background: var(--yellow); animation: pulse 1s infinite; }
-@keyframes pulse { 50% { opacity: 0.4; } }
 
 /* Buttons */
 .btn {
@@ -55,32 +47,79 @@ header h1 span { color: var(--green); }
 .btn-primary:hover { background: var(--green-dim); }
 .btn-primary:disabled { background: var(--surface2); color: var(--text3); cursor: not-allowed; }
 .btn-danger { background: var(--red); color: #fff; }
-.btn-sm { padding: 6px 14px; font-size: 13px; }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
 .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--surface2); }
+.btn-ghost:hover { border-color: var(--text3); }
+
+/* Devices grid */
+.devices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+/* Add device card */
+.add-card {
+  background: var(--surface); border: 2px dashed var(--surface2);
+  border-radius: var(--radius); padding: 40px 20px;
+  text-align: center; min-height: 200px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; transition: border-color 0.2s;
+}
+.add-card:hover { border-color: var(--text3); }
+.add-card p { color: var(--text3); font-size: 13px; }
+
+/* Device panel */
+.device-panel {
+  background: var(--surface); border-radius: var(--radius);
+  border: 2px solid var(--surface2); overflow: hidden;
+  transition: border-color 0.3s;
+}
+.device-panel.slot-0 { border-color: var(--green); }
+.device-panel.slot-1 { border-color: var(--blue); }
+.device-panel.slot-2 { border-color: var(--orange); }
+
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border-bottom: 1px solid var(--surface2);
+}
+.panel-header .slot-badge {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;
+}
+.slot-0 .slot-badge { background: var(--green-bg); color: var(--green); }
+.slot-1 .slot-badge { background: var(--blue-bg); color: var(--blue); }
+.slot-2 .slot-badge { background: var(--orange-bg); color: var(--orange); }
+
+.panel-header .device-name { font-size: 13px; font-weight: 600; flex: 1; margin: 0 10px; }
+.panel-header .status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--text3); display: inline-block; margin-right: 6px;
+  transition: background 0.3s;
+}
+.panel-header .status-dot.connected { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.panel-header .status-dot.connecting { background: var(--yellow); animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: 0.4; } }
+
+.panel-body { padding: 12px; }
 
 /* Cards */
 .card {
-  background: var(--surface); border-radius: var(--radius);
-  padding: 16px; margin-bottom: var(--gap);
+  background: var(--surface2); border-radius: 8px;
+  padding: 12px; margin-bottom: var(--gap);
 }
 .card-title {
-  font-size: 11px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.8px; color: var(--text3); margin-bottom: 12px;
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--text3); margin-bottom: 8px;
 }
-
-/* Connect section */
-#connect-section { text-align: center; padding: 40px 0; }
-#connect-section p { color: var(--text2); margin: 8px 0 20px; font-size: 14px; }
-.device-name { font-size: 14px; color: var(--text2); }
 
 /* Stats grid */
-.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); margin-bottom: var(--gap); }
-.stat-card {
-  background: var(--surface); border-radius: var(--radius); padding: 14px;
-}
-.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
-.stat-value { font-size: 26px; font-weight: 700; letter-spacing: -1px; margin: 4px 0 0; }
-.stat-unit { font-size: 13px; font-weight: 400; color: var(--text2); }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: var(--gap); }
+.stat-card { background: var(--surface2); border-radius: 8px; padding: 10px; }
+.stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin: 2px 0 0; }
+.stat-unit { font-size: 12px; font-weight: 400; color: var(--text2); }
 .stat-value.green { color: var(--green); }
 .stat-value.blue { color: var(--blue); }
 .stat-value.yellow { color: var(--yellow); }
@@ -89,31 +128,26 @@ header h1 span { color: var(--green); }
 /* SOC gauge */
 .soc-card { grid-column: 1 / -1; }
 .soc-bar-outer {
-  height: 24px; background: var(--surface2); border-radius: 12px;
-  overflow: hidden; margin-top: 8px;
+  height: 20px; background: rgba(0,0,0,0.3); border-radius: 10px;
+  overflow: hidden; margin-top: 6px;
 }
 .soc-bar-inner {
-  height: 100%; border-radius: 12px;
+  height: 100%; border-radius: 10px;
   background: linear-gradient(90deg, var(--red), var(--yellow) 30%, var(--green) 60%);
   transition: width 0.5s ease;
   display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;
-  font-size: 12px; font-weight: 700; color: #000; min-width: 40px;
+  font-size: 11px; font-weight: 700; color: #000; min-width: 36px;
 }
 
 /* Cell voltages */
-.cells-container { display: flex; flex-direction: column; gap: 4px; }
+.cells-container { display: flex; flex-direction: column; gap: 3px; }
 .cell-row {
-  display: grid; grid-template-columns: 40px 1fr 60px; align-items: center; gap: 8px;
-  font-size: 13px;
+  display: grid; grid-template-columns: 36px 1fr 54px; align-items: center; gap: 6px;
+  font-size: 12px;
 }
 .cell-label { color: var(--text3); font-weight: 500; }
-.cell-bar-outer {
-  height: 16px; background: var(--surface2); border-radius: 4px; overflow: hidden;
-}
-.cell-bar-inner {
-  height: 100%; border-radius: 4px; transition: width 0.3s, background 0.3s;
-  min-width: 2px;
-}
+.cell-bar-outer { height: 14px; background: rgba(0,0,0,0.3); border-radius: 3px; overflow: hidden; }
+.cell-bar-inner { height: 100%; border-radius: 3px; transition: width 0.3s, background 0.3s; min-width: 2px; }
 .cell-bar-inner.low { background: var(--red); }
 .cell-bar-inner.mid { background: var(--yellow); }
 .cell-bar-inner.ok { background: var(--green); }
@@ -121,87 +155,59 @@ header h1 span { color: var(--green); }
 .cell-value { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
 
 /* Temp grid */
-.temp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
-.temp-item {
-  background: var(--surface2); border-radius: 8px; padding: 10px;
-  text-align: center;
-}
-.temp-label { font-size: 11px; color: var(--text3); }
-.temp-value { font-size: 18px; font-weight: 700; margin-top: 2px; }
+.temp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 6px; }
+.temp-item { background: rgba(0,0,0,0.3); border-radius: 6px; padding: 8px; text-align: center; }
+.temp-label { font-size: 10px; color: var(--text3); }
+.temp-value { font-size: 16px; font-weight: 700; margin-top: 2px; }
 .temp-value.hot { color: var(--red); }
 .temp-value.warm { color: var(--orange); }
 .temp-value.normal { color: var(--green); }
 
-/* Protection flags */
-.prot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.prot-item {
-  font-size: 12px; padding: 6px 8px; border-radius: 6px;
-  display: flex; align-items: center; gap: 6px;
-}
-.prot-item.ok { background: var(--green-bg); color: var(--green); }
-.prot-item.alert { background: var(--red-bg); color: var(--red); font-weight: 600; }
-.prot-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.prot-item.ok .prot-dot { background: var(--green); }
-.prot-item.alert .prot-dot { background: var(--red); }
-
 /* MOS status */
-.mos-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-.mos-item {
-  text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--surface2);
-}
+.mos-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+.mos-item { text-align: center; padding: 8px; border-radius: 6px; border: 1px solid var(--surface2); }
 .mos-item.on { border-color: var(--green); background: var(--green-bg); }
 .mos-item.off { border-color: var(--red); background: var(--red-bg); }
-.mos-label { font-size: 11px; color: var(--text3); }
-.mos-state { font-size: 14px; font-weight: 700; margin-top: 2px; }
+.mos-label { font-size: 10px; color: var(--text3); }
+.mos-state { font-size: 13px; font-weight: 700; margin-top: 2px; }
 .mos-item.on .mos-state { color: var(--green); }
 .mos-item.off .mos-state { color: var(--red); }
 
 /* Device info rows */
 .info-row {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 6px 0; border-bottom: 1px solid var(--surface);
+  padding: 4px 0; border-bottom: 1px solid rgba(0,0,0,0.2);
 }
 .info-row:last-child { border-bottom: none; }
-.info-label { font-size: 13px; color: var(--text3); }
-.info-value { font-size: 13px; color: var(--text); font-weight: 500; font-family: 'SF Mono', monospace; }
+.info-label { font-size: 12px; color: var(--text3); }
+.info-value { font-size: 12px; color: var(--text); font-weight: 500; font-family: 'SF Mono', monospace; }
 
 /* Toggle switch */
 .toggle-label {
-  display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;
 }
 .toggle-label input { display: none; }
 .toggle-slider {
-  width: 36px; height: 20px; background: var(--surface2); border-radius: 10px;
+  width: 32px; height: 18px; background: var(--surface2); border-radius: 9px;
   position: relative; transition: background 0.2s;
 }
 .toggle-slider::after {
   content: ''; position: absolute; top: 2px; left: 2px;
-  width: 16px; height: 16px; background: var(--text3); border-radius: 50%;
+  width: 14px; height: 14px; background: var(--text3); border-radius: 50%;
   transition: transform 0.2s, background 0.2s;
 }
 .toggle-label input:checked + .toggle-slider { background: var(--green); }
-.toggle-label input:checked + .toggle-slider::after { transform: translateX(16px); background: #fff; }
-.toggle-text { font-size: 13px; color: var(--text2); }
+.toggle-label input:checked + .toggle-slider::after { transform: translateX(14px); background: #fff; }
+.toggle-text { font-size: 12px; color: var(--text2); }
 
 /* Hex dump */
-.hex-toggle {
-  width: 100%; text-align: left; background: var(--surface);
-  border: none; color: var(--text2); font-size: 13px;
-  padding: 12px 16px; border-radius: var(--radius);
-  cursor: pointer; font-family: inherit; font-weight: 600;
-  display: flex; justify-content: space-between;
-}
-.hex-toggle .arrow { transition: transform 0.2s; }
-.hex-toggle.open .arrow { transform: rotate(90deg); }
 .hex-dump {
-  display: none; background: var(--surface); border-radius: 0 0 var(--radius) var(--radius);
-  padding: 12px; margin-top: -12px; margin-bottom: var(--gap);
-  max-height: 300px; overflow-y: auto;
+  background: rgba(0,0,0,0.3); border-radius: 6px;
+  padding: 8px; max-height: 200px; overflow-y: auto;
 }
-.hex-dump.show { display: block; }
 .hex-dump pre {
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-  font-size: 11px; line-height: 1.6; color: var(--text2);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 10px; line-height: 1.5; color: var(--text2);
   white-space: pre-wrap; word-break: break-all;
 }
 .hex-dump .offset { color: var(--text3); }
@@ -211,9 +217,9 @@ header h1 span { color: var(--green); }
 
 /* Log */
 .log {
-  background: var(--surface); border-radius: var(--radius);
-  padding: 12px; max-height: 200px; overflow-y: auto;
-  font-family: monospace; font-size: 11px; line-height: 1.6;
+  background: rgba(0,0,0,0.3); border-radius: 6px;
+  padding: 8px; max-height: 150px; overflow-y: auto;
+  font-family: monospace; font-size: 10px; line-height: 1.5;
 }
 .log-entry { color: var(--text3); }
 .log-entry.info { color: var(--blue); }
@@ -222,19 +228,21 @@ header h1 span { color: var(--green); }
 .log-entry.error { color: var(--red); }
 
 /* Tabs */
-.tabs { display: flex; gap: 4px; margin-bottom: var(--gap); }
+.tabs { display: flex; gap: 3px; margin-bottom: var(--gap); }
 .tab {
-  flex: 1; text-align: center; padding: 8px; border: none;
-  background: var(--surface); color: var(--text3);
-  font-size: 13px; font-weight: 600; cursor: pointer;
-  border-radius: 8px; font-family: inherit;
-  transition: all 0.15s;
+  flex: 1; text-align: center; padding: 6px; border: none;
+  background: rgba(0,0,0,0.3); color: var(--text3);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  border-radius: 6px; font-family: inherit; transition: all 0.15s;
 }
-.tab.active { background: var(--green-bg); color: var(--green); }
+.tab.active { color: var(--green); }
+.slot-0 .tab.active { background: var(--green-bg); color: var(--green); }
+.slot-1 .tab.active { background: var(--blue-bg); color: var(--blue); }
+.slot-2 .tab.active { background: var(--orange-bg); color: var(--orange); }
 
 .hidden { display: none !important; }
 
-/* Unsupported browser warning */
+/* Browser warning */
 .warning-banner {
   background: var(--yellow-bg); border: 1px solid var(--yellow);
   color: var(--yellow); padding: 12px; border-radius: 8px;
@@ -242,9 +250,12 @@ header h1 span { color: var(--green); }
 }
 
 /* Frame counter */
-.frame-counter {
-  font-size: 11px; color: var(--text3); text-align: center;
-  margin-bottom: 8px;
+.frame-counter { font-size: 10px; color: var(--text3); text-align: center; margin-bottom: 6px; }
+
+/* Responsive tweaks for single column */
+@media (max-width: 400px) {
+  .devices-grid { grid-template-columns: 1fr; }
+  .stat-value { font-size: 18px; }
 }
 </style>
 </head>
@@ -252,146 +263,26 @@ header h1 span { color: var(--green); }
 <div class="container">
   <header>
     <h1><span>&#9889;</span> JK BMS Monitor</h1>
-    <div id="header-status">
-      <span class="status-dot" id="status-dot"></span>
-      <span id="status-text" style="font-size:13px; color:var(--text2)">Disconnected</span>
-    </div>
+    <div style="font-size:12px; color:var(--text3)" id="global-status">No devices</div>
   </header>
 
   <div id="browser-warning" class="warning-banner hidden">
     Web Bluetooth is not supported in this browser. Use Chrome, Edge, or Opera on Android/Desktop.
   </div>
 
-  <!-- Connect Screen -->
-  <div id="connect-section">
-    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.5">
-      <path d="M6.5 6.5l11 11M6.5 17.5l11-11M12 2v20"/>
-      <rect x="4" y="7" width="16" height="10" rx="2" stroke="#334155"/>
-      <rect x="20" y="10" width="2" height="4" rx="0.5" fill="#334155" stroke="none"/>
-    </svg>
-    <p>Connect to your JK BMS via Bluetooth Low Energy</p>
-    <button class="btn btn-primary" id="btn-scan" onclick="startScan()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5l11 11M6.5 17.5l11-11M12 2v20"/></svg>
-      Scan for BMS
-    </button>
-  </div>
-
-  <!-- Dashboard (hidden until connected) -->
-  <div id="dashboard" class="hidden">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
-      <div>
-        <div class="device-name" id="device-name">—</div>
-      </div>
-      <button class="btn btn-danger btn-sm" onclick="disconnect()">Disconnect</button>
-    </div>
-
-    <div class="frame-counter" id="frame-counter">Waiting for data...</div>
-
-    <!-- SOC -->
-    <div class="stat-card soc-card" style="margin-bottom:var(--gap)">
-      <div style="display:flex; justify-content:space-between; align-items:baseline">
-        <div class="stat-label">State of Charge</div>
-        <div style="font-size:13px; color:var(--text2)">
-          <span id="soc-remain">—</span> / <span id="soc-full">—</span> Ah
-        </div>
-      </div>
-      <div class="soc-bar-outer">
-        <div class="soc-bar-inner" id="soc-bar" style="width:0%">0%</div>
-      </div>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Pack Voltage</div>
-        <div class="stat-value blue" id="pack-voltage">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Current</div>
-        <div class="stat-value green" id="pack-current">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Power</div>
-        <div class="stat-value yellow" id="pack-power">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Cycles</div>
-        <div class="stat-value" id="pack-cycles" style="color:var(--text)">—</div>
-      </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab active" onclick="showTab('cells',this)">Cells</button>
-      <button class="tab" onclick="showTab('temps',this)">Temps</button>
-      <button class="tab" onclick="showTab('status',this)">Status</button>
-      <button class="tab" onclick="showTab('raw',this)">Raw</button>
-    </div>
-
-    <!-- Cells Tab -->
-    <div id="tab-cells" class="card">
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px">
-        <div class="card-title">Cell Voltages</div>
-        <div style="font-size:12px; color:var(--text3)">
-          &#916; <span id="cell-delta">—</span> mV
-        </div>
-      </div>
-      <div class="cells-container" id="cells-container">
-        <div style="text-align:center; color:var(--text3); padding:20px; font-size:13px">
-          Waiting for cell data...
-        </div>
-      </div>
-    </div>
-
-    <!-- Temps Tab -->
-    <div id="tab-temps" class="card hidden">
-      <div class="card-title">Temperatures</div>
-      <div class="temp-grid" id="temp-grid">
-        <div style="color:var(--text3); font-size:13px; grid-column:1/-1; text-align:center; padding:12px">
-          Waiting for temperature data...
-        </div>
-      </div>
-    </div>
-
-    <!-- Status Tab -->
-    <div id="tab-status" class="card hidden">
-      <div class="card-title">Device Info</div>
-      <div id="device-info-content" style="margin-bottom:12px">
-        <div style="color:var(--text3); font-size:13px; text-align:center; padding:8px">
-          Waiting for device info...
-        </div>
-      </div>
-      <div class="card-title">MOS Status</div>
-      <div class="mos-grid" id="mos-grid">
-        <div class="mos-item"><div class="mos-label">Charge</div><div class="mos-state" id="mos-charge">—</div></div>
-        <div class="mos-item"><div class="mos-label">Discharge</div><div class="mos-state" id="mos-discharge">—</div></div>
-        <div class="mos-item"><div class="mos-label">Balance</div><div class="mos-state" id="mos-balance">—</div></div>
-      </div>
-      <div class="card-title" style="margin-top:12px">Alarm Status</div>
-      <div id="alarm-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:6px">
-        <div style="color:var(--text3); font-size:13px; grid-column:1/-1; text-align:center; padding:12px">
-          No alarms
-        </div>
-      </div>
-    </div>
-
-    <!-- Raw Tab -->
-    <div id="tab-raw" class="card hidden">
-      <div class="card-title">Raw Frame Data</div>
-      <div style="display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; align-items:center">
-        <button class="btn btn-ghost btn-sm" onclick="sendActivate()">Send Activate</button>
-        <button class="btn btn-ghost btn-sm" onclick="sendDeviceInfo()">Send Dev Info</button>
-        <label class="toggle-label" style="margin-left:auto">
-          <input type="checkbox" id="heartbeat-toggle" checked onchange="toggleHeartbeat(this.checked)">
-          <span class="toggle-slider"></span>
-          <span class="toggle-text">Heartbeat</span>
-        </label>
-      </div>
-      <div class="hex-dump show" id="hex-dump" style="margin-top:0; max-height:400px">
-        <pre id="hex-content">No data received yet</pre>
-      </div>
-      <div class="card-title" style="margin-top:12px">Event Log</div>
-      <div class="log" id="log-container"></div>
+  <div class="devices-grid" id="devices-grid">
+    <!-- Add device card (always present, hidden when 3 devices connected) -->
+    <div class="add-card" id="add-card">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5">
+        <path d="M6.5 6.5l11 11M6.5 17.5l11-11M12 2v20"/>
+        <rect x="4" y="7" width="16" height="10" rx="2"/>
+        <rect x="20" y="10" width="2" height="4" rx="0.5" fill="var(--text3)" stroke="none"/>
+      </svg>
+      <p>Connect a JK BMS via Bluetooth</p>
+      <button class="btn btn-primary" id="btn-add" onclick="addDevice()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add BMS
+      </button>
     </div>
   </div>
 </div>
@@ -405,368 +296,533 @@ const BLE = {
   SERVICE: 0xFFE0,
   CHAR_NOTIFY: 0xFFE1,
   CHAR_WRITE: 0xFFE2,
-  CMD_CELL_INFO: 0x96,   // Request cell info / activate
+  CMD_CELL_INFO: 0x96,
   CMD_DEVICE_INFO: 0x97,
-  // Frame types are THE SAME for all protocol versions:
   FRAME_SETTINGS: 0x01,
   FRAME_CELL_DATA: 0x02,
   FRAME_DEVICE_INFO: 0x03,
-  FRAME_SIZE: 300,             // All frames are 300 bytes, CRC at byte 299
+  FRAME_SIZE: 300,
   HEARTBEAT_INTERVAL: 5000,
 };
 
-// Protocol versions (auto-detected from device info)
 const PROTO = {
   JK02_24S: 'jk02_24s',
   JK02_32S: 'jk02_32s',
   JK04:     'jk04',
 };
 
-// Error bit descriptions (from esphome)
 const ERROR_BITS = [
-  'Charge overtemp',           // bit 0
-  'Charge undertemp',          // bit 1
-  'Coprocessor comm error',    // bit 2
-  'Cell undervoltage',         // bit 3
-  'Pack undervoltage',         // bit 4
-  'Discharge overcurrent',     // bit 5
-  'Discharge short circuit',   // bit 6
-  'Discharge overtemp',        // bit 7
-  'Wire resistance',           // bit 8
-  'MOSFET overtemp',           // bit 9
-  'Cell count mismatch',       // bit 10
-  'Current sensor anomaly',    // bit 11
-  'Cell overvoltage',          // bit 12
-  'Pack overvoltage',          // bit 13
-  'Charge overcurrent',        // bit 14
-  'Charge short circuit',      // bit 15
+  'Charge overtemp', 'Charge undertemp', 'Coprocessor comm error',
+  'Cell undervoltage', 'Pack undervoltage', 'Discharge overcurrent',
+  'Discharge short circuit', 'Discharge overtemp', 'Wire resistance',
+  'MOSFET overtemp', 'Cell count mismatch', 'Current sensor anomaly',
+  'Cell overvoltage', 'Pack overvoltage', 'Charge overcurrent', 'Charge short circuit',
 ];
 
-// ============================================================
-// State
-// ============================================================
-let device = null;
-let server = null;
-let service = null;
-let charNotify = null;
-let charWrite = null;
-let rxBuffer = [];
-let frameCount = 0;
-let lastFrameTime = 0;
-let reconnecting = false;
-let heartbeatTimer = null;
-let protocolVersion = PROTO.JK02_32S; // Default; auto-detected from device info
+const SLOT_COLORS = ['green', 'blue', 'orange'];
+const MAX_SLOTS = 3;
 
-let bmsData = {
-  model: '', firmware: '', hardware: '', serial: '', deviceName: '',
-  cells: [], resistances: [],
-  avgCell: 0, deltaCell: 0, maxCellNo: 0, minCellNo: 0,
-  temps: {}, packVoltage: 0, packCurrent: 0, packPower: 0,
-  soc: 0, soh: 0, remainCap: 0, fullCap: 0, cycles: 0, cycleCap: 0, runtime: 0,
-  balanceCurrent: 0, chargeMos: false, dischargeMos: false, balanceActive: false,
-  heating: false, errorBitmask: 0, errorText: '',
-};
+// ============================================================
+// Multi-device State
+// ============================================================
+const slots = [null, null, null]; // Each slot is null or a connection object
+
+function createBmsData() {
+  return {
+    model: '', firmware: '', hardware: '', serial: '', deviceName: '',
+    cells: [], resistances: [],
+    avgCell: 0, deltaCell: 0, maxCellNo: 0, minCellNo: 0,
+    temps: {}, packVoltage: 0, packCurrent: 0, packPower: 0,
+    soc: 0, soh: 0, remainCap: 0, fullCap: 0, cycles: 0, cycleCap: 0, runtime: 0,
+    balanceCurrent: 0, chargeMos: false, dischargeMos: false, balanceActive: false,
+    heating: false, errorBitmask: 0, errorText: '',
+  };
+}
+
+function createSlotState() {
+  return {
+    device: null,
+    server: null,
+    service: null,
+    charNotify: null,
+    charWrite: null,
+    rxBuffer: [],
+    frameCount: 0,
+    lastFrameTime: 0,
+    reconnecting: false,
+    heartbeatTimer: null,
+    heartbeatEnabled: false,
+    protocolVersion: PROTO.JK02_32S,
+    bmsData: createBmsData(),
+  };
+}
+
+function connectedCount() {
+  return slots.filter(s => s !== null).length;
+}
+
+function findFreeSlot() {
+  for (let i = 0; i < MAX_SLOTS; i++) {
+    if (slots[i] === null) return i;
+  }
+  return -1;
+}
+
+// ============================================================
+// Element helper
+// ============================================================
+function el(id, s) { return document.getElementById(id + '-' + s); }
 
 // ============================================================
 // Browser check
 // ============================================================
 if (!navigator.bluetooth) {
   document.getElementById('browser-warning').classList.remove('hidden');
-  document.getElementById('btn-scan').disabled = true;
+  document.getElementById('btn-add').disabled = true;
 }
 
 // ============================================================
-// Logging
+// Logging (per-slot)
 // ============================================================
-function log(msg, level = '') {
-  const el = document.getElementById('log-container');
-  if (!el) return;
+function log(s, msg, level = '') {
+  const container = el('log', s);
+  if (!container) return;
   const ts = new Date().toLocaleTimeString('en', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const div = document.createElement('div');
   div.className = 'log-entry ' + level;
   div.textContent = `[${ts}] ${msg}`;
-  el.appendChild(div);
-  el.scrollTop = el.scrollHeight;
-  // Keep max 200 entries
-  while (el.children.length > 200) el.removeChild(el.firstChild);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  while (container.children.length > 100) container.removeChild(container.firstChild);
 }
 
 // ============================================================
-// BLE Connection
+// Dynamic UI Generation
 // ============================================================
-async function startScan() {
-  try {
-    log('Scanning for JK BMS devices...', 'info');
-    setStatus('connecting');
+function createDevicePanel(s) {
+  const color = SLOT_COLORS[s];
+  const html = `
+  <div class="device-panel slot-${s}" id="panel-${s}">
+    <div class="panel-header">
+      <span class="slot-badge">BMS ${s + 1}</span>
+      <span class="status-dot connecting" id="dot-${s}"></span>
+      <span class="device-name" id="devname-${s}">Connecting...</span>
+      <button class="btn btn-danger btn-sm" onclick="disconnectSlot(${s})">&#10005;</button>
+    </div>
+    <div class="panel-body">
+      <div class="frame-counter" id="framecnt-${s}">Waiting for data...</div>
 
-    device = await navigator.bluetooth.requestDevice({
+      <!-- SOC -->
+      <div class="stat-card soc-card" style="margin-bottom:var(--gap)">
+        <div style="display:flex; justify-content:space-between; align-items:baseline">
+          <div class="stat-label">State of Charge</div>
+          <div style="font-size:11px; color:var(--text2)">
+            <span id="soc-remain-${s}">—</span> / <span id="soc-full-${s}">—</span> Ah
+          </div>
+        </div>
+        <div class="soc-bar-outer">
+          <div class="soc-bar-inner" id="soc-bar-${s}" style="width:0%">0%</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Voltage</div>
+          <div class="stat-value blue" id="pack-voltage-${s}">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Current</div>
+          <div class="stat-value green" id="pack-current-${s}">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Power</div>
+          <div class="stat-value yellow" id="pack-power-${s}">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Cycles</div>
+          <div class="stat-value" id="pack-cycles-${s}" style="color:var(--text)">—</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" onclick="showTab(${s},'cells',this)">Cells</button>
+        <button class="tab" onclick="showTab(${s},'temps',this)">Temps</button>
+        <button class="tab" onclick="showTab(${s},'status',this)">Status</button>
+        <button class="tab" onclick="showTab(${s},'raw',this)">Raw</button>
+      </div>
+
+      <!-- Cells Tab -->
+      <div id="tab-cells-${s}" class="card">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px">
+          <div class="card-title">Cell Voltages</div>
+          <div style="font-size:11px; color:var(--text3)">&#916; <span id="cell-delta-${s}">—</span> mV</div>
+        </div>
+        <div class="cells-container" id="cells-container-${s}">
+          <div style="text-align:center; color:var(--text3); padding:16px; font-size:12px">Waiting for cell data...</div>
+        </div>
+      </div>
+
+      <!-- Temps Tab -->
+      <div id="tab-temps-${s}" class="card hidden">
+        <div class="card-title">Temperatures</div>
+        <div class="temp-grid" id="temp-grid-${s}">
+          <div style="color:var(--text3); font-size:12px; grid-column:1/-1; text-align:center; padding:10px">Waiting for temperature data...</div>
+        </div>
+      </div>
+
+      <!-- Status Tab -->
+      <div id="tab-status-${s}" class="card hidden">
+        <div class="card-title">Device Info</div>
+        <div id="devinfo-${s}" style="margin-bottom:10px">
+          <div style="color:var(--text3); font-size:12px; text-align:center; padding:6px">Waiting for device info...</div>
+        </div>
+        <div class="card-title">MOS Status</div>
+        <div class="mos-grid">
+          <div class="mos-item" id="mos-chg-wrap-${s}"><div class="mos-label">Charge</div><div class="mos-state" id="mos-chg-${s}">—</div></div>
+          <div class="mos-item" id="mos-dsg-wrap-${s}"><div class="mos-label">Discharge</div><div class="mos-state" id="mos-dsg-${s}">—</div></div>
+          <div class="mos-item" id="mos-bal-wrap-${s}"><div class="mos-label">Balance</div><div class="mos-state" id="mos-bal-${s}">—</div></div>
+        </div>
+        <div class="card-title" style="margin-top:10px">Alarms</div>
+        <div id="alarms-${s}" style="font-size:12px; color:var(--green); text-align:center; padding:8px">No alarms</div>
+      </div>
+
+      <!-- Raw Tab -->
+      <div id="tab-raw-${s}" class="card hidden">
+        <div class="card-title">Raw Frame Data</div>
+        <div style="display:flex; gap:4px; margin-bottom:6px; flex-wrap:wrap; align-items:center">
+          <button class="btn btn-ghost btn-sm" onclick="sendActivate(${s})">Activate</button>
+          <button class="btn btn-ghost btn-sm" onclick="sendDeviceInfoCmd(${s})">Dev Info</button>
+          <label class="toggle-label" style="margin-left:auto">
+            <input type="checkbox" id="hb-toggle-${s}" onchange="toggleHeartbeat(${s},this.checked)">
+            <span class="toggle-slider"></span>
+            <span class="toggle-text">HB</span>
+          </label>
+        </div>
+        <div class="hex-dump" id="hexdump-${s}">
+          <pre id="hexcontent-${s}">No data received yet</pre>
+        </div>
+        <div class="card-title" style="margin-top:10px">Event Log</div>
+        <div class="log" id="log-${s}"></div>
+      </div>
+    </div>
+  </div>`;
+
+  const addCard = document.getElementById('add-card');
+  addCard.insertAdjacentHTML('beforebegin', html);
+}
+
+function removeDevicePanel(s) {
+  const panel = document.getElementById('panel-' + s);
+  if (panel) panel.remove();
+}
+
+function updateGlobalStatus() {
+  const n = connectedCount();
+  const statusEl = document.getElementById('global-status');
+  statusEl.textContent = n === 0 ? 'No devices' : `${n} device${n > 1 ? 's' : ''} connected`;
+
+  // Show/hide add card
+  const addCard = document.getElementById('add-card');
+  if (n >= MAX_SLOTS) {
+    addCard.classList.add('hidden');
+  } else {
+    addCard.classList.remove('hidden');
+  }
+}
+
+// ============================================================
+// BLE Connection (per-slot)
+// ============================================================
+async function addDevice() {
+  const s = findFreeSlot();
+  if (s === -1) { alert('Maximum 3 devices connected'); return; }
+
+  try {
+    const state = createSlotState();
+    slots[s] = state;
+
+    // Create UI panel
+    createDevicePanel(s);
+    updateGlobalStatus();
+
+    log(s, 'Scanning for JK BMS devices...', 'info');
+
+    state.device = await navigator.bluetooth.requestDevice({
       filters: [{ services: [BLE.SERVICE] }],
       optionalServices: [BLE.SERVICE],
     });
 
-    log(`Selected: ${device.name || 'Unknown'} (${device.id.slice(0,8)})`, 'ok');
-    device.addEventListener('gattserverdisconnected', onDisconnected);
+    log(s, `Selected: ${state.device.name || 'Unknown'} (${state.device.id.slice(0,8)})`, 'ok');
+    state.device.addEventListener('gattserverdisconnected', () => onDisconnected(s));
 
-    await connectDevice();
+    await connectSlot(s);
   } catch (err) {
     if (err.name === 'NotFoundError') {
-      log('Scan cancelled by user', 'warn');
+      // User cancelled scan — remove the slot
+      removeDevicePanel(s);
+      slots[s] = null;
+      updateGlobalStatus();
     } else {
-      log(`Scan error: ${err.message}`, 'error');
+      log(s, `Scan error: ${err.message}`, 'error');
+      setSlotStatus(s, 'disconnected');
     }
-    setStatus('disconnected');
   }
 }
 
-async function connectDevice() {
+async function connectSlot(s) {
+  const state = slots[s];
+  if (!state || !state.device) return;
+
   try {
-    setStatus('connecting');
-    log('Connecting to GATT server...', 'info');
+    setSlotStatus(s, 'connecting');
+    log(s, 'Connecting to GATT server...', 'info');
 
-    server = await device.gatt.connect();
-    log('GATT connected', 'ok');
+    state.server = await state.device.gatt.connect();
+    log(s, 'GATT connected', 'ok');
 
-    service = await server.getPrimaryService(BLE.SERVICE);
-    log(`Service 0xFFE0 found`, 'ok');
+    state.service = await state.server.getPrimaryService(BLE.SERVICE);
+    log(s, 'Service 0xFFE0 found', 'ok');
 
-    charNotify = await service.getCharacteristic(BLE.CHAR_NOTIFY);
-    log(`Notify characteristic 0xFFE1 found`, 'ok');
+    state.charNotify = await state.service.getCharacteristic(BLE.CHAR_NOTIFY);
+    log(s, 'Notify char 0xFFE1 found', 'ok');
 
     try {
-      charWrite = await service.getCharacteristic(BLE.CHAR_WRITE);
-      log(`Write characteristic 0xFFE2 found`, 'ok');
+      state.charWrite = await state.service.getCharacteristic(BLE.CHAR_WRITE);
+      log(s, 'Write char 0xFFE2 found', 'ok');
     } catch {
-      // Some BMS models use FFE1 for both read and write
-      charWrite = charNotify;
-      log('Using 0xFFE1 for write (0xFFE2 not found)', 'warn');
+      state.charWrite = state.charNotify;
+      log(s, 'Using 0xFFE1 for write (0xFFE2 not found)', 'warn');
     }
 
-    await charNotify.startNotifications();
-    charNotify.addEventListener('characteristicvaluechanged', onNotification);
-    log('Notifications enabled', 'ok');
+    await state.charNotify.startNotifications();
+    state.charNotify.addEventListener('characteristicvaluechanged', (event) => onNotification(s, event));
+    log(s, 'Notifications enabled', 'ok');
 
-    setStatus('connected');
-    document.getElementById('device-name').textContent = device.name || 'JK BMS';
-    document.getElementById('connect-section').classList.add('hidden');
-    document.getElementById('dashboard').classList.remove('hidden');
+    setSlotStatus(s, 'connected');
+    const nameEl = el('devname', s);
+    if (nameEl) nameEl.textContent = state.device.name || 'JK BMS';
 
     // Request device info first (triggers protocol auto-detection)
     await sleep(500);
-    await sendDeviceInfo();
+    await sendDeviceInfoCmd(s);
 
-    // Then request cell info to start data streaming
+    // Then request cell info
     await sleep(300);
-    await sendActivate();
+    await sendActivate(s);
 
-    // Start heartbeat if toggle is on
-    startHeartbeatIfEnabled();
+    // Start heartbeat if enabled
+    startHeartbeat(s);
 
   } catch (err) {
-    log(`Connection error: ${err.message}`, 'error');
-    setStatus('disconnected');
+    log(s, `Connection error: ${err.message}`, 'error');
+    setSlotStatus(s, 'disconnected');
   }
 }
 
-function onDisconnected() {
-  log('Device disconnected', 'warn');
-  setStatus('disconnected');
-  if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
-  charNotify = null;
-  charWrite = null;
+function onDisconnected(s) {
+  const state = slots[s];
+  if (!state) return;
 
-  if (!reconnecting) {
-    reconnecting = true;
-    log('Attempting reconnect in 3s...', 'info');
+  log(s, 'Device disconnected', 'warn');
+  setSlotStatus(s, 'disconnected');
+  if (state.heartbeatTimer) { clearInterval(state.heartbeatTimer); state.heartbeatTimer = null; }
+  state.charNotify = null;
+  state.charWrite = null;
+
+  if (!state.reconnecting) {
+    state.reconnecting = true;
+    log(s, 'Attempting reconnect in 3s...', 'info');
     setTimeout(async () => {
-      reconnecting = false;
-      if (device && device.gatt) {
-        try { await connectDevice(); } catch { log('Reconnect failed', 'error'); }
+      if (!slots[s]) return; // slot was freed
+      state.reconnecting = false;
+      if (state.device && state.device.gatt) {
+        try { await connectSlot(s); } catch { log(s, 'Reconnect failed', 'error'); }
       }
     }, 3000);
   }
 }
 
-async function disconnect() {
-  if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
-  if (device && device.gatt.connected) {
-    device.gatt.disconnect();
+async function disconnectSlot(s) {
+  const state = slots[s];
+  if (!state) return;
+
+  if (state.heartbeatTimer) { clearInterval(state.heartbeatTimer); state.heartbeatTimer = null; }
+  state.reconnecting = true; // Prevent auto-reconnect
+  if (state.device && state.device.gatt.connected) {
+    state.device.gatt.disconnect();
   }
-  device = null;
-  setStatus('disconnected');
-  document.getElementById('connect-section').classList.remove('hidden');
-  document.getElementById('dashboard').classList.add('hidden');
-  rxBuffer = [];
-  frameCount = 0;
+
+  removeDevicePanel(s);
+  slots[s] = null;
+  updateGlobalStatus();
 }
 
-function setStatus(state) {
-  const dot = document.getElementById('status-dot');
-  const text = document.getElementById('status-text');
-  dot.className = 'status-dot ' + state;
-  text.textContent = state === 'connected' ? 'Connected' :
-                     state === 'connecting' ? 'Connecting...' : 'Disconnected';
+function setSlotStatus(s, status) {
+  const dot = el('dot', s);
+  if (dot) {
+    dot.className = 'status-dot ' + status;
+  }
 }
 
 // ============================================================
-// BLE Commands
+// BLE Commands (per-slot)
 // ============================================================
 function buildCommand(cmd) {
   const frame = new Uint8Array(20);
   frame[0] = 0xAA; frame[1] = 0x55; frame[2] = 0x90; frame[3] = 0xEB;
   frame[4] = cmd;
-  // bytes 5-18 stay 0x00
   let sum = 0;
   for (let i = 0; i < 19; i++) sum += frame[i];
   frame[19] = sum & 0xFF;
   return frame;
 }
 
-async function sendCommand(data) {
-  if (!charWrite) { log('Not connected', 'error'); return; }
+async function sendCmd(s, data) {
+  const state = slots[s];
+  if (!state || !state.charWrite) { log(s, 'Not connected', 'error'); return; }
   try {
-    await charWrite.writeValueWithoutResponse(data);
-    log(`TX: ${hex(data)}`, 'info');
-  } catch (err) {
-    // Fallback to writeValue if writeValueWithoutResponse not supported
+    await state.charWrite.writeValueWithoutResponse(data);
+    log(s, `TX: ${hex(data)}`, 'info');
+  } catch {
     try {
-      await charWrite.writeValue(data);
-      log(`TX (with response): ${hex(data)}`, 'info');
+      await state.charWrite.writeValue(data);
+      log(s, `TX (with response): ${hex(data)}`, 'info');
     } catch (err2) {
-      log(`Write failed: ${err2.message}`, 'error');
+      log(s, `Write failed: ${err2.message}`, 'error');
     }
   }
 }
 
-async function sendActivate() {
-  const cmd = buildCommand(BLE.CMD_CELL_INFO);
-  log('Sending cell info request (0x96)', 'info');
-  await sendCommand(cmd);
+async function sendActivate(s) {
+  log(s, 'Sending cell info request (0x96)', 'info');
+  await sendCmd(s, buildCommand(BLE.CMD_CELL_INFO));
 }
 
-function startHeartbeatIfEnabled() {
-  if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
-  const toggle = document.getElementById('heartbeat-toggle');
+async function sendDeviceInfoCmd(s) {
+  log(s, 'Sending device info command (0x97)', 'info');
+  await sendCmd(s, buildCommand(BLE.CMD_DEVICE_INFO));
+}
+
+function startHeartbeat(s) {
+  const state = slots[s];
+  if (!state) return;
+  if (state.heartbeatTimer) { clearInterval(state.heartbeatTimer); state.heartbeatTimer = null; }
+
+  const toggle = el('hb-toggle', s);
   if (toggle && toggle.checked) {
-    heartbeatTimer = setInterval(async () => {
-      if (charWrite) {
-        try { await sendActivate(); } catch {}
+    state.heartbeatTimer = setInterval(async () => {
+      if (state.charWrite) {
+        try { await sendActivate(s); } catch {}
       }
     }, BLE.HEARTBEAT_INTERVAL);
-    log('Heartbeat started (every 5s)', 'ok');
+    log(s, 'Heartbeat started (every 5s)', 'ok');
   }
 }
 
-function toggleHeartbeat(enabled) {
+function toggleHeartbeat(s, enabled) {
+  const state = slots[s];
+  if (!state) return;
   if (enabled) {
-    startHeartbeatIfEnabled();
+    startHeartbeat(s);
   } else {
-    if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
-    log('Heartbeat stopped', 'warn');
+    if (state.heartbeatTimer) { clearInterval(state.heartbeatTimer); state.heartbeatTimer = null; }
+    log(s, 'Heartbeat stopped', 'warn');
   }
 }
 
-async function sendDeviceInfo() {
-  const cmd = buildCommand(BLE.CMD_DEVICE_INFO);
-  log('Sending device info command (0x97)', 'info');
-  await sendCommand(cmd);
-}
+// ============================================================
+// Notification Handler & Frame Assembly (per-slot)
+// ============================================================
+function onNotification(s, event) {
+  const state = slots[s];
+  if (!state) return;
 
-// ============================================================
-// Notification Handler & Frame Assembly
-// ============================================================
-function onNotification(event) {
   const value = new Uint8Array(event.target.value.buffer);
-  // Append to receive buffer
-  for (let i = 0; i < value.length; i++) rxBuffer.push(value[i]);
-
-  // Try to extract complete frames
-  extractFrames();
+  for (let i = 0; i < value.length; i++) state.rxBuffer.push(value[i]);
+  extractFrames(s);
 }
 
-function extractFrames() {
-  // esphome approach: flush buffer on preamble, frame is always 300 bytes
-  while (rxBuffer.length >= BLE.FRAME_SIZE) {
-    // Find header pattern 0x55 0xAA 0xEB 0x90
+function extractFrames(s) {
+  const state = slots[s];
+  if (!state) return;
+
+  while (state.rxBuffer.length >= BLE.FRAME_SIZE) {
     let headerIdx = -1;
-    for (let i = 0; i <= rxBuffer.length - 4; i++) {
-      if (rxBuffer[i] === 0x55 && rxBuffer[i+1] === 0xAA &&
-          rxBuffer[i+2] === 0xEB && rxBuffer[i+3] === 0x90) {
+    for (let i = 0; i <= state.rxBuffer.length - 4; i++) {
+      if (state.rxBuffer[i] === 0x55 && state.rxBuffer[i+1] === 0xAA &&
+          state.rxBuffer[i+2] === 0xEB && state.rxBuffer[i+3] === 0x90) {
         headerIdx = i;
         break;
       }
     }
 
     if (headerIdx === -1) {
-      if (rxBuffer.length > 3) rxBuffer = rxBuffer.slice(-3);
+      if (state.rxBuffer.length > 3) state.rxBuffer = state.rxBuffer.slice(-3);
       return;
     }
 
-    // Discard bytes before header
-    if (headerIdx > 0) rxBuffer = rxBuffer.slice(headerIdx);
+    if (headerIdx > 0) state.rxBuffer = state.rxBuffer.slice(headerIdx);
+    if (state.rxBuffer.length < BLE.FRAME_SIZE) return;
 
-    // Need at least 300 bytes for a complete frame
-    if (rxBuffer.length < BLE.FRAME_SIZE) return;
+    const frame = new Uint8Array(state.rxBuffer.slice(0, BLE.FRAME_SIZE));
+    state.rxBuffer = state.rxBuffer.slice(BLE.FRAME_SIZE);
 
-    // Extract 300-byte frame
-    const frame = new Uint8Array(rxBuffer.slice(0, BLE.FRAME_SIZE));
-    rxBuffer = rxBuffer.slice(BLE.FRAME_SIZE);
-
-    // Verify CRC (sum of first 299 bytes, low byte)
     let crcCalc = 0;
     for (let i = 0; i < BLE.FRAME_SIZE - 1; i++) crcCalc += frame[i];
     crcCalc &= 0xFF;
     const crcRemote = frame[BLE.FRAME_SIZE - 1];
 
     if (crcCalc !== crcRemote) {
-      log(`CRC mismatch: calc=0x${crcCalc.toString(16)} != recv=0x${crcRemote.toString(16)}`, 'warn');
-      continue; // Try next frame
+      log(s, `CRC mismatch: calc=0x${crcCalc.toString(16)} != recv=0x${crcRemote.toString(16)}`, 'warn');
+      continue;
     }
 
-    processFrame(frame);
+    processFrame(s, frame);
   }
 }
 
 // ============================================================
-// Frame Processing
+// Frame Processing (per-slot)
 // ============================================================
-function processFrame(frame) {
-  if (frame.length < 6) return;
+function processFrame(s, frame) {
+  const state = slots[s];
+  if (!state || frame.length < 6) return;
 
-  frameCount++;
-  lastFrameTime = Date.now();
+  state.frameCount++;
+  state.lastFrameTime = Date.now();
   const frameType = frame[4];
 
-  document.getElementById('frame-counter').textContent =
-    `Frame #${frameCount} | Type: 0x${frameType.toString(16).padStart(2,'0')} | ${frame.length} bytes | Proto: ${protocolVersion}`;
+  const cntEl = el('framecnt', s);
+  if (cntEl) cntEl.textContent =
+    `Frame #${state.frameCount} | Type: 0x${frameType.toString(16).padStart(2,'0')} | ${frame.length}B | ${state.protocolVersion}`;
 
-  updateHexDump(frame);
+  updateHexDump(s, frame);
 
   switch (frameType) {
-    case BLE.FRAME_SETTINGS:    // 0x01 — settings (all protocol versions)
-      log(`Settings frame received (${frame.length} bytes)`, 'info');
+    case BLE.FRAME_SETTINGS:
+      log(s, `Settings frame (${frame.length} bytes)`, 'info');
       break;
-    case BLE.FRAME_CELL_DATA:   // 0x02 — cell/realtime data
-      parseCellData(frame);
+    case BLE.FRAME_CELL_DATA:
+      parseCellData(s, frame);
       break;
-    case BLE.FRAME_DEVICE_INFO: // 0x03 — device info
-      parseDeviceInfo(frame);
+    case BLE.FRAME_DEVICE_INFO:
+      parseDeviceInfo(s, frame);
       break;
     default:
-      log(`Unknown frame type 0x${frameType.toString(16)} (${frame.length} bytes)`, 'warn');
+      log(s, `Unknown frame type 0x${frameType.toString(16)}`, 'warn');
   }
 }
 
 // ============================================================
-// Helpers for reading protocol data
+// Data Helpers
 // ============================================================
 function jkGet16(view, i) { return view.getUint16(i, true); }
 function jkGet32(view, i) { return view.getUint32(i, true); }
 function jkGetS16(view, i) { return view.getInt16(i, true); }
 function jkGetS32(view, i) { return view.getInt32(i, true); }
-function jkGetFloat(view, i) {
-  // IEEE 754 float from 4 bytes little-endian
-  return view.getFloat32(i, true);
-}
+function jkGetFloat(view, i) { return view.getFloat32(i, true); }
 
 function readString(frame, start, maxLen) {
   let s = '';
@@ -786,117 +842,95 @@ function errorBitsToString(bitmask) {
 }
 
 // ============================================================
-// Device Info Parser (Frame Type 0x03) — all protocols
-// From esphome: fixed offsets at 6, 22, 30, 38, 42, 46, 62
+// Device Info Parser (Frame Type 0x03)
 // ============================================================
-function parseDeviceInfo(frame) {
-  if (frame.length < 70) {
-    log(`Device info frame too short: ${frame.length} bytes`, 'warn');
-    return;
-  }
+function parseDeviceInfo(s, frame) {
+  const state = slots[s];
+  if (!state || frame.length < 70) return;
 
   const view = new DataView(frame.buffer);
+  const d = state.bmsData;
 
-  // Offset 6, 16 bytes: Vendor/model ID (e.g., "JK-B2A16S", "JK_PB2A16S15P")
-  bmsData.model = readString(frame, 6, 16);
-
-  // Offset 22, 8 bytes: Hardware version
-  bmsData.hardware = readString(frame, 22, 8);
-
-  // Offset 30, 8 bytes: Software/firmware version
-  bmsData.firmware = readString(frame, 30, 8);
-
-  // Offset 38, 4 bytes: Uptime in seconds (uint32 LE)
+  d.model = readString(frame, 6, 16);
+  d.hardware = readString(frame, 22, 8);
+  d.firmware = readString(frame, 30, 8);
   const uptimeS = jkGet32(view, 38);
-
-  // Offset 42, 4 bytes: Power on count (uint32 LE)
   const powerOnCount = jkGet32(view, 42);
-
-  // Offset 46, 16 bytes: Device name
-  bmsData.deviceName = readString(frame, 46, 16);
-
-  // Offset 62, 16 bytes: Device passcode
+  d.deviceName = readString(frame, 46, 16);
   const passcode = readString(frame, 62, 16);
-
-  // Offset 78, 8 bytes: Manufacturing date (JK02 variants)
   const mfgDate = readString(frame, 78, 8);
+  d.serial = readString(frame, 86, 11);
 
-  // Offset 86, 10 bytes: Serial number (JK02 variants)
-  bmsData.serial = readString(frame, 86, 11);
-
-  // Auto-detect protocol from model string
-  const model = bmsData.model;
+  // Auto-detect protocol
+  const model = d.model;
   if (model.startsWith('JK_') || model.includes('PB')) {
-    // JK_PBxxxx models use the JK02_32S protocol frame layout
-    protocolVersion = PROTO.JK02_32S;
-    log(`Auto-detected protocol: JK02_32S (model: ${model})`, 'ok');
+    state.protocolVersion = PROTO.JK02_32S;
+    log(s, `Protocol: JK02_32S (model: ${model})`, 'ok');
   } else if (model.startsWith('JK-B') && /\d{2}S$/.test(model)) {
-    // JK-B2AxxSxx models — check hardware version
-    const hwMajor = parseInt(bmsData.hardware);
+    const hwMajor = parseInt(d.hardware);
     if (hwMajor >= 11) {
-      protocolVersion = PROTO.JK02_32S;
-      log(`Auto-detected protocol: JK02_32S (HW ${bmsData.hardware})`, 'ok');
+      state.protocolVersion = PROTO.JK02_32S;
+      log(s, `Protocol: JK02_32S (HW ${d.hardware})`, 'ok');
     } else if (hwMajor >= 3 && hwMajor < 11) {
-      protocolVersion = PROTO.JK04;
-      log(`Auto-detected protocol: JK04 (HW ${bmsData.hardware})`, 'ok');
+      state.protocolVersion = PROTO.JK04;
+      log(s, `Protocol: JK04 (HW ${d.hardware})`, 'ok');
     } else {
-      protocolVersion = PROTO.JK02_24S;
-      log(`Auto-detected protocol: JK02_24S (HW ${bmsData.hardware})`, 'ok');
+      state.protocolVersion = PROTO.JK02_24S;
+      log(s, `Protocol: JK02_24S (HW ${d.hardware})`, 'ok');
     }
   }
 
-  // Update header with model info
-  const nameEl = document.getElementById('device-name');
-  nameEl.textContent = bmsData.deviceName || bmsData.model || device?.name || 'JK BMS';
+  // Update UI
+  const nameEl = el('devname', s);
+  if (nameEl) nameEl.textContent = d.deviceName || d.model || state.device?.name || 'JK BMS';
 
-  // Update device info in status tab
-  const infoEl = document.getElementById('device-info-content');
+  const infoEl = el('devinfo', s);
   if (infoEl) {
     infoEl.innerHTML = `
-      <div class="info-row"><span class="info-label">Model</span><span class="info-value">${bmsData.model || '—'}</span></div>
-      <div class="info-row"><span class="info-label">Hardware</span><span class="info-value">${bmsData.hardware || '—'}</span></div>
-      <div class="info-row"><span class="info-label">Firmware</span><span class="info-value">${bmsData.firmware || '—'}</span></div>
-      <div class="info-row"><span class="info-label">Serial</span><span class="info-value">${bmsData.serial || '—'}</span></div>
-      <div class="info-row"><span class="info-label">Name</span><span class="info-value">${bmsData.deviceName || '—'}</span></div>
-      <div class="info-row"><span class="info-label">Protocol</span><span class="info-value">${protocolVersion}</span></div>
+      <div class="info-row"><span class="info-label">Model</span><span class="info-value">${d.model || '—'}</span></div>
+      <div class="info-row"><span class="info-label">Hardware</span><span class="info-value">${d.hardware || '—'}</span></div>
+      <div class="info-row"><span class="info-label">Firmware</span><span class="info-value">${d.firmware || '—'}</span></div>
+      <div class="info-row"><span class="info-label">Serial</span><span class="info-value">${d.serial || '—'}</span></div>
+      <div class="info-row"><span class="info-label">Name</span><span class="info-value">${d.deviceName || '—'}</span></div>
+      <div class="info-row"><span class="info-label">Protocol</span><span class="info-value">${state.protocolVersion}</span></div>
     `;
   }
 
-  log(`Model: ${bmsData.model} | FW: ${bmsData.firmware} | SN: ${bmsData.serial}`, 'ok');
+  log(s, `Model: ${d.model} | FW: ${d.firmware} | SN: ${d.serial}`, 'ok');
 }
 
 // ============================================================
-// Cell Data Parser (Frame Type 0x02) — dispatches by protocol
+// Cell Data Parser (Frame Type 0x02)
 // ============================================================
-function parseCellData(frame) {
-  if (frame.length < 200) {
-    log(`Cell data frame too short: ${frame.length} bytes`, 'warn');
-    return;
-  }
+function parseCellData(s, frame) {
+  const state = slots[s];
+  if (!state || frame.length < 200) return;
 
-  if (protocolVersion === PROTO.JK04) {
-    parseJK04CellInfo(frame);
+  if (state.protocolVersion === PROTO.JK04) {
+    parseJK04CellInfo(s, frame);
   } else {
-    parseJK02CellInfo(frame);
+    parseJK02CellInfo(s, frame);
   }
 }
 
 // ============================================================
-// JK02 Cell Info Parser (24S and 32S variants)
-// Based on esphome decode_jk02_cell_info_
+// JK02 Cell Info Parser (24S and 32S)
 // ============================================================
-function parseJK02CellInfo(frame) {
+function parseJK02CellInfo(s, frame) {
+  const state = slots[s];
+  if (!state) return;
   const view = new DataView(frame.buffer);
-  const is32S = (protocolVersion === PROTO.JK02_32S);
-  const ofs = is32S ? 16 : 0;   // 32S has 16 extra bytes of cell data (32 vs 24 cells)
+  const d = state.bmsData;
+  const is32S = (state.protocolVersion === PROTO.JK02_32S);
+  const ofs = is32S ? 16 : 0;
   const numCells = is32S ? 32 : 24;
 
-  // --- Cell Voltages: offset 6, numCells × uint16 LE, ×0.001 = V ---
+  // Cell Voltages: offset 6, numCells × uint16 LE, ×0.001 = V
   const cells = [];
   let minV = 100, maxV = -100, minCell = 0, maxCell = 0, totalV = 0, enabledCells = 0;
   for (let i = 0; i < numCells; i++) {
     const raw = jkGet16(view, i * 2 + 6);
-    const v = raw * 0.001;  // mV → V
+    const v = raw * 0.001;
     if (v > 0 && v < 5.0) {
       cells.push({ index: i + 1, mV: raw, V: v });
       totalV += v;
@@ -905,117 +939,75 @@ function parseJK02CellInfo(frame) {
       if (v > maxV) { maxV = v; maxCell = i + 1; }
     }
   }
-  bmsData.cells = cells;
-  bmsData.avgCell = enabledCells > 0 ? (totalV / enabledCells) * 1000 : 0;
-  bmsData.deltaCell = enabledCells > 0 ? (maxV - minV) * 1000 : 0;
-  bmsData.maxCellNo = maxCell;
-  bmsData.minCellNo = minCell;
+  d.cells = cells;
+  d.avgCell = enabledCells > 0 ? (totalV / enabledCells) * 1000 : 0;
+  d.deltaCell = enabledCells > 0 ? (maxV - minV) * 1000 : 0;
+  d.maxCellNo = maxCell;
+  d.minCellNo = minCell;
 
-  // --- Cell Resistances: offset 64+ofs, numCells × uint16 LE, ×0.001 = Ω ---
+  // Cell Resistances: offset 64+ofs
   const resistances = [];
   for (let i = 0; i < numCells; i++) {
     const raw = jkGet16(view, i * 2 + 64 + ofs);
-    if (raw > 0 && raw < 65535) {
-      resistances.push({ index: i + 1, mOhm: raw });
-    }
+    if (raw > 0 && raw < 65535) resistances.push({ index: i + 1, mOhm: raw });
   }
-  bmsData.resistances = resistances;
+  d.resistances = resistances;
 
-  // After resistances, 32S doubles the offset
   const ofs2 = ofs * 2;
 
-  // --- MOS Temperature (32S only at 112+ofs2) ---
-  if (is32S) {
-    bmsData.temps.mos = jkGetS16(view, 112 + ofs2) * 0.1;
-  }
+  if (is32S) d.temps.mos = jkGetS16(view, 112 + ofs2) * 0.1;
 
-  // --- Pack Voltage: offset 118+ofs2, uint32 LE, ×0.001 = V ---
-  bmsData.packVoltage = jkGet32(view, 118 + ofs2) * 0.001;
-
-  // --- Pack Current: offset 126+ofs2, int32 LE, ×0.001 = A ---
+  d.packVoltage = jkGet32(view, 118 + ofs2) * 0.001;
   const current = jkGetS32(view, 126 + ofs2) * 0.001;
-  bmsData.packCurrent = current;
-  bmsData.packPower = bmsData.packVoltage * current;
+  d.packCurrent = current;
+  d.packPower = d.packVoltage * current;
 
-  // --- Temperature Sensor 1: offset 130+ofs2, int16 LE, ×0.1 = °C ---
-  bmsData.temps.bat1 = jkGetS16(view, 130 + ofs2) * 0.1;
+  d.temps.bat1 = jkGetS16(view, 130 + ofs2) * 0.1;
+  d.temps.bat2 = jkGetS16(view, 132 + ofs2) * 0.1;
 
-  // --- Temperature Sensor 2: offset 132+ofs2, int16 LE, ×0.1 = °C ---
-  bmsData.temps.bat2 = jkGetS16(view, 132 + ofs2) * 0.1;
-
-  // --- MOS Temp / Errors: offset 134+ofs2 ---
   if (is32S) {
-    // 32S: this is errors bitmask (big-endian!)
     const rawErr = (frame[134 + ofs2] << 8) | frame[135 + ofs2];
-    bmsData.errorBitmask = rawErr;
-    bmsData.errorText = errorBitsToString(rawErr);
+    d.errorBitmask = rawErr;
+    d.errorText = errorBitsToString(rawErr);
   } else {
-    bmsData.temps.mos = jkGetS16(view, 134 + ofs2) * 0.1;
-  }
-
-  // --- Errors (24S only): offset 136+ofs2 ---
-  if (!is32S) {
+    d.temps.mos = jkGetS16(view, 134 + ofs2) * 0.1;
     const rawErr = (frame[136 + ofs2] << 8) | frame[137 + ofs2];
-    bmsData.errorBitmask = rawErr;
-    bmsData.errorText = errorBitsToString(rawErr);
+    d.errorBitmask = rawErr;
+    d.errorText = errorBitsToString(rawErr);
   }
 
-  // --- Balance current: offset 138+ofs2, int16 LE, ×0.001 = A ---
-  bmsData.balanceCurrent = jkGetS16(view, 138 + ofs2) * 0.001;
+  d.balanceCurrent = jkGetS16(view, 138 + ofs2) * 0.001;
+  d.balanceActive = frame[140 + ofs2] !== 0;
+  d.soc = frame[141 + ofs2];
+  d.remainCap = jkGet32(view, 142 + ofs2) * 0.001;
+  d.fullCap = jkGet32(view, 146 + ofs2) * 0.001;
+  d.cycles = jkGet32(view, 150 + ofs2);
+  d.cycleCap = jkGet32(view, 154 + ofs2) * 0.001;
+  d.soh = frame[158 + ofs2];
+  d.runtime = jkGet32(view, 162 + ofs2);
+  d.chargeMos = frame[166 + ofs2] === 1;
+  d.dischargeMos = frame[167 + ofs2] === 1;
+  d.heating = frame[183 + ofs2] === 1;
 
-  // --- Balance action: offset 140+ofs2 (0=off, 1=charging, 2=discharging) ---
-  bmsData.balanceActive = frame[140 + ofs2] !== 0;
-
-  // --- SOC: offset 141+ofs2, uint8, % ---
-  bmsData.soc = frame[141 + ofs2];
-
-  // --- Remaining capacity: offset 142+ofs2, uint32 LE, ×0.001 = Ah ---
-  bmsData.remainCap = jkGet32(view, 142 + ofs2) * 0.001;
-
-  // --- Full capacity: offset 146+ofs2, uint32 LE, ×0.001 = Ah ---
-  bmsData.fullCap = jkGet32(view, 146 + ofs2) * 0.001;
-
-  // --- Cycle count: offset 150+ofs2, uint32 LE ---
-  bmsData.cycles = jkGet32(view, 150 + ofs2);
-
-  // --- Cycle capacity: offset 154+ofs2, uint32 LE, ×0.001 = Ah ---
-  bmsData.cycleCap = jkGet32(view, 154 + ofs2) * 0.001;
-
-  // --- SOH: offset 158+ofs2, uint8, % ---
-  bmsData.soh = frame[158 + ofs2];
-
-  // --- Total runtime: offset 162+ofs2, uint32 LE, seconds ---
-  bmsData.runtime = jkGet32(view, 162 + ofs2);
-
-  // --- Charging MOSFET: offset 166+ofs2 ---
-  bmsData.chargeMos = frame[166 + ofs2] === 1;
-
-  // --- Discharging MOSFET: offset 167+ofs2 ---
-  bmsData.dischargeMos = frame[167 + ofs2] === 1;
-
-  // --- Heating: offset 183+ofs2 ---
-  bmsData.heating = frame[183 + ofs2] === 1;
-
-  // --- Temperature sensors 3-5 (32S only) ---
   if (is32S) {
-    bmsData.temps.bat3 = jkGetS16(view, 226 + ofs2) * 0.1;
-    bmsData.temps.bat4 = jkGetS16(view, 224 + ofs2) * 0.1;
-    bmsData.temps.bat5 = jkGetS16(view, 222 + ofs2) * 0.1;
+    d.temps.bat3 = jkGetS16(view, 226 + ofs2) * 0.1;
+    d.temps.bat4 = jkGetS16(view, 224 + ofs2) * 0.1;
+    d.temps.bat5 = jkGetS16(view, 222 + ofs2) * 0.1;
   }
 
-  updateUI();
+  updateSlotUI(s);
 }
 
 // ============================================================
 // JK04 Cell Info Parser
-// Based on esphome decode_jk04_cell_info_
-// Cell voltages and resistances are IEEE 754 floats!
 // ============================================================
-function parseJK04CellInfo(frame) {
+function parseJK04CellInfo(s, frame) {
+  const state = slots[s];
+  if (!state) return;
   const view = new DataView(frame.buffer);
+  const d = state.bmsData;
   const numCells = 24;
 
-  // --- Cell Voltages: offset 6, 24 × float32 LE (V) ---
   const cells = [];
   let minV = 100, maxV = -100, minCell = 0, maxCell = 0, totalV = 0, enabledCells = 0;
   for (let i = 0; i < numCells; i++) {
@@ -1028,105 +1020,105 @@ function parseJK04CellInfo(frame) {
       if (v > maxV) { maxV = v; maxCell = i + 1; }
     }
   }
-  bmsData.cells = cells;
-  bmsData.avgCell = enabledCells > 0 ? (totalV / enabledCells) * 1000 : 0;
-  bmsData.deltaCell = enabledCells > 0 ? (maxV - minV) * 1000 : 0;
-  bmsData.maxCellNo = maxCell;
-  bmsData.minCellNo = minCell;
-  bmsData.packVoltage = totalV;
+  d.cells = cells;
+  d.avgCell = enabledCells > 0 ? (totalV / enabledCells) * 1000 : 0;
+  d.deltaCell = enabledCells > 0 ? (maxV - minV) * 1000 : 0;
+  d.maxCellNo = maxCell;
+  d.minCellNo = minCell;
+  d.packVoltage = totalV;
 
-  // --- Cell Resistances: offset 102, 24 × float32 LE (Ω) ---
   const resistances = [];
   for (let i = 0; i < numCells; i++) {
     const r = jkGetFloat(view, i * 4 + 102);
-    if (r > 0 && r < 10) {
-      resistances.push({ index: i + 1, mOhm: Math.round(r * 1000) });
-    }
+    if (r > 0 && r < 10) resistances.push({ index: i + 1, mOhm: Math.round(r * 1000) });
   }
-  bmsData.resistances = resistances;
+  d.resistances = resistances;
 
-  // --- Balancing: offset 220 ---
-  bmsData.balanceActive = frame[220] !== 0;
+  d.balanceActive = frame[220] !== 0;
+  d.balanceCurrent = jkGetFloat(view, 222);
+  d.runtime = jkGet32(view, 286);
 
-  // --- Balancing current: offset 222, float32 LE (A) ---
-  bmsData.balanceCurrent = jkGetFloat(view, 222);
-
-  // --- Uptime: offset 286, uint32 LE (seconds) ---
-  bmsData.runtime = jkGet32(view, 286);
-
-  updateUI();
+  updateSlotUI(s);
 }
 
 // ============================================================
-// UI Updates
+// UI Updates (per-slot)
 // ============================================================
-function updateUI() {
-  const d = bmsData;
+function updateSlotUI(s) {
+  const state = slots[s];
+  if (!state) return;
+  const d = state.bmsData;
 
-  // Pack stats
   const voltage = d.packVoltage;
   const current = d.packCurrent;
   const power = d.packPower !== 0 ? d.packPower : voltage * current;
 
-  document.getElementById('pack-voltage').innerHTML =
-    `${voltage.toFixed(1)} <span class="stat-unit">V</span>`;
+  const voltEl = el('pack-voltage', s);
+  if (voltEl) voltEl.innerHTML = `${voltage.toFixed(1)} <span class="stat-unit">V</span>`;
 
-  const currentEl = document.getElementById('pack-current');
-  currentEl.innerHTML = `${current >= 0 ? '+' : ''}${current.toFixed(1)} <span class="stat-unit">A</span>`;
-  currentEl.className = 'stat-value ' + (current > 0.1 ? 'green' : current < -0.1 ? 'red' : 'blue');
+  const curEl = el('pack-current', s);
+  if (curEl) {
+    curEl.innerHTML = `${current >= 0 ? '+' : ''}${current.toFixed(1)} <span class="stat-unit">A</span>`;
+    curEl.className = 'stat-value ' + (current > 0.1 ? 'green' : current < -0.1 ? 'red' : 'blue');
+  }
 
-  document.getElementById('pack-power').innerHTML =
-    `${Math.abs(power).toFixed(0)} <span class="stat-unit">W</span>`;
+  const powEl = el('pack-power', s);
+  if (powEl) powEl.innerHTML = `${Math.abs(power).toFixed(0)} <span class="stat-unit">W</span>`;
 
-  document.getElementById('pack-cycles').innerHTML =
-    `${d.cycles}`;
+  const cycEl = el('pack-cycles', s);
+  if (cycEl) cycEl.textContent = d.cycles;
 
   // SOC
   const socPct = Math.max(0, Math.min(100, d.soc));
-  const socBar = document.getElementById('soc-bar');
-  socBar.style.width = Math.max(socPct, 5) + '%';
-  socBar.textContent = socPct + '%';
+  const socBar = el('soc-bar', s);
+  if (socBar) {
+    socBar.style.width = Math.max(socPct, 5) + '%';
+    socBar.textContent = socPct + '%';
+  }
+  const remEl = el('soc-remain', s);
+  if (remEl) remEl.textContent = d.remainCap > 0 ? d.remainCap.toFixed(1) : '—';
+  const fullEl = el('soc-full', s);
+  if (fullEl) fullEl.textContent = d.fullCap > 0 ? d.fullCap.toFixed(1) : '—';
 
-  document.getElementById('soc-remain').textContent = d.remainCap > 0 ? d.remainCap.toFixed(1) : '—';
-  document.getElementById('soc-full').textContent = d.fullCap > 0 ? d.fullCap.toFixed(1) : '—';
+  // Cells
+  updateCellDisplay(s);
 
-  // Cell voltages
-  updateCellDisplay();
+  const deltaEl = el('cell-delta', s);
+  if (deltaEl) deltaEl.textContent = d.deltaCell.toFixed(0);
 
-  // Delta
-  document.getElementById('cell-delta').textContent = d.deltaCell.toFixed(0);
+  // Temps
+  updateTempDisplay(s);
 
-  // Temperatures
-  updateTempDisplay();
+  // MOS
+  updateMos(s, 'chg', d.chargeMos);
+  updateMos(s, 'dsg', d.dischargeMos);
+  updateMos(s, 'bal', d.balanceActive);
 
-  // MOS status
-  updateMosStatus('mos-charge', d.chargeMos, 'CHG');
-  updateMosStatus('mos-discharge', d.dischargeMos, 'DSG');
-  updateMosStatus('mos-balance', d.balanceActive, 'BAL');
-
-  // Alarm / error display
-  const alarmEl = document.getElementById('alarm-grid');
+  // Alarms
+  const alarmEl = el('alarms', s);
   if (alarmEl) {
     if (d.errorBitmask > 0) {
-      alarmEl.innerHTML = `<div style="color:var(--red); font-size:13px; grid-column:1/-1; padding:8px">${d.errorText}</div>`;
+      alarmEl.style.color = 'var(--red)';
+      alarmEl.textContent = d.errorText;
     } else {
-      alarmEl.innerHTML = '<div style="color:var(--green); font-size:13px; grid-column:1/-1; text-align:center; padding:12px">No alarms</div>';
+      alarmEl.style.color = 'var(--green)';
+      alarmEl.textContent = 'No alarms';
     }
   }
 }
 
-function updateCellDisplay() {
-  const container = document.getElementById('cells-container');
-  const cells = bmsData.cells;
+function updateCellDisplay(s) {
+  const state = slots[s];
+  if (!state) return;
+  const container = el('cells-container', s);
+  if (!container) return;
+  const cells = state.bmsData.cells;
   if (cells.length === 0) return;
 
   const voltages = cells.map(c => c.mV);
   const min = Math.min(...voltages);
   const max = Math.max(...voltages);
-  const avg = bmsData.avgCell;
-
-  // Scale bars: show relative difference
-  // Use a range of avg ± 100mV for the bar scale
+  const avg = state.bmsData.avgCell;
   const barMin = Math.max(0, avg - 150);
   const barMax = avg + 150;
 
@@ -1152,44 +1144,48 @@ function updateCellDisplay() {
   container.innerHTML = html;
 }
 
-function updateTempDisplay() {
-  const grid = document.getElementById('temp-grid');
-  const t = bmsData.temps;
+function updateTempDisplay(s) {
+  const state = slots[s];
+  if (!state) return;
+  const grid = el('temp-grid', s);
+  if (!grid) return;
+  const t = state.bmsData.temps;
   if (!t.mos && !t.bat1 && !t.bat2) return;
 
   const temps = [];
-  if (t.mos !== null && t.mos !== undefined) temps.push({ label: 'MOS', value: t.mos });
-  if (t.bat1 !== null && t.bat1 !== undefined) temps.push({ label: 'Batt T1', value: t.bat1 });
-  if (t.bat2 !== null && t.bat2 !== undefined) temps.push({ label: 'Batt T2', value: t.bat2 });
-  if (t.bat3 !== null && t.bat3 !== undefined) temps.push({ label: 'Batt T3', value: t.bat3 });
-  if (t.bat4 !== null && t.bat4 !== undefined) temps.push({ label: 'Batt T4', value: t.bat4 });
-  if (t.bat5 !== null && t.bat5 !== undefined) temps.push({ label: 'Batt T5', value: t.bat5 });
+  if (t.mos != null) temps.push({ label: 'MOS', value: t.mos });
+  if (t.bat1 != null) temps.push({ label: 'T1', value: t.bat1 });
+  if (t.bat2 != null) temps.push({ label: 'T2', value: t.bat2 });
+  if (t.bat3 != null) temps.push({ label: 'T3', value: t.bat3 });
+  if (t.bat4 != null) temps.push({ label: 'T4', value: t.bat4 });
+  if (t.bat5 != null) temps.push({ label: 'T5', value: t.bat5 });
 
   let html = '';
   for (const tmp of temps) {
-    if (tmp.value === null || isNaN(tmp.value) || Math.abs(tmp.value) > 200) continue;
+    if (tmp.value == null || isNaN(tmp.value) || Math.abs(tmp.value) > 200) continue;
     const cls = tmp.value > 50 ? 'hot' : tmp.value > 35 ? 'warm' : 'normal';
     html += `<div class="temp-item">
       <div class="temp-label">${tmp.label}</div>
       <div class="temp-value ${cls}">${tmp.value.toFixed(1)}°</div>
     </div>`;
   }
-  grid.innerHTML = html || '<div style="color:var(--text3); font-size:13px; grid-column:1/-1; text-align:center; padding:12px">No valid temperature data</div>';
+  grid.innerHTML = html || '<div style="color:var(--text3); font-size:12px; grid-column:1/-1; text-align:center; padding:10px">No temp data</div>';
 }
 
-function updateMosStatus(id, isOn, label) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const parent = el.closest('.mos-item');
-  parent.className = 'mos-item ' + (isOn ? 'on' : 'off');
-  el.textContent = isOn ? 'ON' : 'OFF';
+function updateMos(s, key, isOn) {
+  const stateEl = el('mos-' + key, s);
+  const wrapEl = el('mos-' + key + '-wrap', s);
+  if (!stateEl || !wrapEl) return;
+  wrapEl.className = 'mos-item ' + (isOn ? 'on' : 'off');
+  stateEl.textContent = isOn ? 'ON' : 'OFF';
 }
 
 // ============================================================
-// Hex Dump
+// Hex Dump (per-slot)
 // ============================================================
-function updateHexDump(frame) {
-  const pre = document.getElementById('hex-content');
+function updateHexDump(s, frame) {
+  const pre = el('hexcontent', s);
+  if (!pre) return;
   let html = '';
   for (let i = 0; i < frame.length; i += 16) {
     const offsetStr = i.toString(16).padStart(4, '0').toUpperCase();
@@ -1200,9 +1196,8 @@ function updateHexDump(frame) {
         const byte = frame[i + j];
         let cls = 'data-bytes';
         if (i + j < 4) cls = 'header-bytes';
-        else if (i + j === 4) cls = 'header-bytes'; // frame type
+        else if (i + j === 4) cls = 'header-bytes';
         else if (i + j >= frame.length - 4) cls = 'crc-bytes';
-
         hexPart += `<span class="${cls}">${byte.toString(16).padStart(2, '0').toUpperCase()}</span> `;
         asciiPart += (byte >= 32 && byte <= 126) ? String.fromCharCode(byte) : '.';
       } else {
@@ -1217,15 +1212,19 @@ function updateHexDump(frame) {
 }
 
 // ============================================================
-// Tab Switching
+// Tab Switching (per-slot)
 // ============================================================
-function showTab(name, btn) {
+function showTab(s, name, btn) {
   ['cells', 'temps', 'status', 'raw'].forEach(t => {
-    const el = document.getElementById('tab-' + t);
-    if (el) el.classList.toggle('hidden', t !== name);
+    const tabEl = el('tab-' + t, s);
+    if (tabEl) tabEl.classList.toggle('hidden', t !== name);
   });
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  if (btn) btn.classList.add('active');
+  // Update tab buttons within this panel
+  const panel = document.getElementById('panel-' + s);
+  if (panel) {
+    panel.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
 }
 
 // ============================================================
@@ -1234,11 +1233,10 @@ function showTab(name, btn) {
 function hex(data) {
   return Array.from(data).map(b => b.toString(16).padStart(2, '0')).join(' ');
 }
-
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // ============================================================
-// Service Worker Registration (PWA)
+// Service Worker (PWA)
 // ============================================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
