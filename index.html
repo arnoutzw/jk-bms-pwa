@@ -165,6 +165,24 @@ header h1 span { color: var(--green); }
 .info-label { font-size: 13px; color: var(--text3); }
 .info-value { font-size: 13px; color: var(--text); font-weight: 500; font-family: 'SF Mono', monospace; }
 
+/* Toggle switch */
+.toggle-label {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;
+}
+.toggle-label input { display: none; }
+.toggle-slider {
+  width: 36px; height: 20px; background: var(--surface2); border-radius: 10px;
+  position: relative; transition: background 0.2s;
+}
+.toggle-slider::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; background: var(--text3); border-radius: 50%;
+  transition: transform 0.2s, background 0.2s;
+}
+.toggle-label input:checked + .toggle-slider { background: var(--green); }
+.toggle-label input:checked + .toggle-slider::after { transform: translateX(16px); background: #fff; }
+.toggle-text { font-size: 13px; color: var(--text2); }
+
 /* Hex dump */
 .hex-toggle {
   width: 100%; text-align: left; background: var(--surface);
@@ -360,9 +378,14 @@ header h1 span { color: var(--green); }
     <!-- Raw Tab -->
     <div id="tab-raw" class="card hidden">
       <div class="card-title">Raw Frame Data</div>
-      <div style="display:flex; gap:6px; margin-bottom:8px">
+      <div style="display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; align-items:center">
         <button class="btn btn-ghost btn-sm" onclick="sendActivate()">Send Activate</button>
         <button class="btn btn-ghost btn-sm" onclick="sendDeviceInfo()">Send Dev Info</button>
+        <label class="toggle-label" style="margin-left:auto">
+          <input type="checkbox" id="heartbeat-toggle" checked onchange="toggleHeartbeat(this.checked)">
+          <span class="toggle-slider"></span>
+          <span class="toggle-text">Heartbeat</span>
+        </label>
       </div>
       <div class="hex-dump show" id="hex-dump" style="margin-top:0; max-height:400px">
         <pre id="hex-content">No data received yet</pre>
@@ -527,19 +550,16 @@ async function connectDevice() {
     document.getElementById('connect-section').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
 
-    // Send activate command to start data streaming
+    // Request device info first (triggers protocol auto-detection)
     await sleep(500);
+    await sendDeviceInfo();
+
+    // Then request cell info to start data streaming
+    await sleep(300);
     await sendActivate();
 
-    // Start heartbeat — BMS disconnects if it doesn't receive
-    // periodic activate commands (every ~5 seconds)
-    if (heartbeatTimer) clearInterval(heartbeatTimer);
-    heartbeatTimer = setInterval(async () => {
-      if (charWrite) {
-        try { await sendActivate(); } catch {}
-      }
-    }, BLE.HEARTBEAT_INTERVAL);
-    log('Heartbeat started (every 5s)', 'ok');
+    // Start heartbeat if toggle is on
+    startHeartbeatIfEnabled();
 
   } catch (err) {
     log(`Connection error: ${err.message}`, 'error');
@@ -621,6 +641,28 @@ async function sendActivate() {
   const cmd = buildCommand(BLE.CMD_CELL_INFO);
   log('Sending cell info request (0x96)', 'info');
   await sendCommand(cmd);
+}
+
+function startHeartbeatIfEnabled() {
+  if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
+  const toggle = document.getElementById('heartbeat-toggle');
+  if (toggle && toggle.checked) {
+    heartbeatTimer = setInterval(async () => {
+      if (charWrite) {
+        try { await sendActivate(); } catch {}
+      }
+    }, BLE.HEARTBEAT_INTERVAL);
+    log('Heartbeat started (every 5s)', 'ok');
+  }
+}
+
+function toggleHeartbeat(enabled) {
+  if (enabled) {
+    startHeartbeatIfEnabled();
+  } else {
+    if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
+    log('Heartbeat stopped', 'warn');
+  }
 }
 
 async function sendDeviceInfo() {
